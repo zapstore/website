@@ -20,11 +20,11 @@ menu:
     - name: Download
       pageRef: download
       weight: 1
-    - name: Docs
+    - name: Developers
       pageRef: /docs
       weight: 2
-    - name: Writings
-      pageRef: /writings
+    - name: Blog
+      pageRef: /blog
       weight: 2
     - name: Search
       weight: 4
