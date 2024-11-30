@@ -4,7 +4,7 @@ toc: false
 
 <div class="hx-text-center">
   <div class="hx-mt-6 hx-mb-6">
-    <h1 class="hero gradient-text">The app store powered&nbsp;<br class="sm:hx-block hx-hidden" />by community</h1>
+    <h1 id="hero" class="gradient-text">The app store powered&nbsp;<br class="sm:hx-block hx-hidden" />by community</h1>
   </div>
 
   <div class="hx-mb-12">

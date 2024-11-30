@@ -14,8 +14,8 @@ body, .content {
   font-size: 1.15rem;
 }
 
-.hero {
-  font-size: 6rem;
+#hero {
+  font-size: 3.5rem;
   letter-spacing: -3px;
   line-height: 0.9;
   font-weight: bold;
@@ -27,6 +27,18 @@ body, .content {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent !important;
+}
+
+@media (min-width: 768px) {
+  #hero {
+    font-size: 4.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  #hero {
+    font-size: 5.5rem;
+  }
 }
 
 @font-face {
