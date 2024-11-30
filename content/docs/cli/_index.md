@@ -7,6 +7,6 @@ sidebar:
 weight: 0
 ---
 
-Zapstore is a fully-functional package manager.
+Zapstore CLI is a fully-functional package manager.
 
 [Download](/download) a release for your operating system.

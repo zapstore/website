@@ -1,8 +1,10 @@
 ---
 title: Can Nostr fix app distribution?
-date: 2024-01-28
+date: 2024-01-29
 draft: false
 ---
+
+_Originally published at [https://stacker.news/items/404908](https://stacker.news/items/404908)_
 
 There are four angles from which I want to discuss this topic: discoverability, security, reputation and monetization.
 
