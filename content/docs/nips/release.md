@@ -3,9 +3,11 @@ title: Release
 next: docs/nips/file-metadata
 ---
 
-Kind: 30063
+Kind: **30063** from [NIP-51](https://nips.nostr.com/51), release artifact sets.
 
-This event represents a release and points to the kind 1063s (`e` tags) and an app (`a` tag)
+Group of artifacts of a software release.
+
+### Example
 
 ```json
 {

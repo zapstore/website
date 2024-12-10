@@ -2,9 +2,11 @@
 title: File metadata
 ---
 
-**Kind 1063** from [NIP-94](https://nips.nostr.com/94).
+Kind: **1063** from [NIP-94](https://nips.nostr.com/94).
 
 This is the metadata tied directly with the package (e.g. APK) via its hash.
+
+### Example
 
 ```json
 {
