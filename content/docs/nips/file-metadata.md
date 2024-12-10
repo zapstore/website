@@ -1,12 +1,14 @@
 ---
 title: File metadata
+weight: 80
+next: app-curation-set
 ---
 
 Kind: **1063** from [NIP-94](https://nips.nostr.com/94).
 
 This is the metadata tied directly with the package (e.g. APK) via its hash.
 
-### Example
+## Example
 
 ```json
 {

@@ -1,25 +1,16 @@
 ---
 title: App
+weight: 1
 next: docs/nips/release
 ---
 
 Kind: **32267** from [NIP-82 (PR)](https://github.com/nostr-protocol/nips/pull/1336).
 
-----
-
-NIP-82
-======
-
-Software Applications
----------------------
-
-`draft` `optional`
-
 This NIP defines kind 32267 to represent a software application.
 
 ## Application
 
-```jsonc
+```json
 {
   "kind": 32267,
   "content": "<description>", // Description of the application, markdown is allowed
@@ -75,9 +66,8 @@ App authors MAY include their pubkeys as `p` tags and `zap` tags as per [NIP-57 
 
 A kind 30063 [release artifact set](51.md) SHOULD have an `a` tag reference back to this event, alongside its references to `"e"` [file metadata](94.md) events.
 
-----
 
-### Example
+## Example
 
 ```json
 {

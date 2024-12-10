@@ -7,7 +7,7 @@ Kind: **30063** from [NIP-51](https://nips.nostr.com/51), release artifact sets.
 
 Group of artifacts of a software release.
 
-### Example
+## Example
 
 ```json
 {
