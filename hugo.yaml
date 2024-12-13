@@ -20,7 +20,7 @@ menu:
     - name: Download
       pageRef: download
       weight: 1
-    - name: Developers
+    - name: Documentation
       pageRef: /docs
       weight: 2
     - name: Blog
