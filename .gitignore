@@ -7,3 +7,5 @@ resources/
 .vscode/
 .DS_Store
 publish.sh
+
+drafts/
