@@ -19,7 +19,7 @@ Zapstore abstains from ads.
 
 ### What does Zapstore provide technically that Google Play does not?
 
-Zapstore provides a CLI for signing, and uploading releases. App enjoyers are able to verify developer's release signature.
+Zapstore provides a CLI for signing, and uploading releases. App customers are able to verify developer's release signature.
 
 Zapstore builds on permissionless, open, and neutral micropayment protocol in the [Lightning Network]([url](https://lightning.network/)). No email, or phone number is required to send zaps to app devs via Zapstore.
 
