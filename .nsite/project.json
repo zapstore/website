@@ -1,0 +1,17 @@
+{
+  "relays": [
+    "wss://relay.damus.io",
+    "wss://relay.primal.net",
+    "wss://purplerelay.com"
+  ],
+  "servers": [
+    "https://nostr.download"
+  ],
+  "profile": {
+    "name": "zapstore",
+    "about": "The zapstore website"
+  },
+  "publishProfile": true,
+  "publishServerList": true,
+  "publishRelayList": true
+}
