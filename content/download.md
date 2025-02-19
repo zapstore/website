@@ -8,9 +8,9 @@ draft: false
 
 {{< tab >}}
 
-## 0.2.3 for Android
+## 0.2.5 for Android
 
-Download [here](https://cdn.zapstore.dev/640c736271195e0c8cd7a5425d5a49e3fb3208735e14a36b2aa051eac5efa80e) and install on your device.
+Download [here](https://cdn.zapstore.dev/bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397) and install on your device.
 
 {{< callout type="warning" >}}
 If this is the first time you install Zapstore on your device, it's important to verify this download.<br><br>
@@ -22,7 +22,7 @@ If you are updating, Android will take care of the verification for you.
 Are you on a computer? Open a terminal and run `shasum -a 256` on the downloaded file. It should show the following SHA-256 hash:
 
 ```text
-640c736271195e0c8cd7a5425d5a49e3fb3208735e14a36b2aa051eac5efa80e 
+bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397 
 ```
 
 Are you on your Android device? Use [AppVerifier](https://github.com/soupslurpr/AppVerifier/releases/latest) and input the following APK certificate hash:
