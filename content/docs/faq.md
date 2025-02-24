@@ -25,6 +25,12 @@ Zapstore builds on permissionless, open, and neutral micropayment protocol in th
 
 Zapstore's social layer is powered by the permissionless, open, and neutral [nostr protocol]([url](https://fiatjaf.com/nostr.html)). Anyone can create, or utilize an existing nostr identity. 
 
+### What does Zapstore use for the developer, user, and web-of-trust identities?
+Zapstore builds on the open, permissionless, and social [nostr protocol](https://github.com/nostr-protocol/nostr).
+
+### What is the web-of-trust DVM?
+Web-of-trust data vending machine (DVM) allows querying one or more services that return social proof for a particular app.
+
 ### How can Zapstore help app devs make money?
 App customers will be able to send micropayments to devs. Zapstore will prompt app customers to zap devs upon app updates.
 
