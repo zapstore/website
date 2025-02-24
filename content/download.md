@@ -8,9 +8,9 @@ draft: false
 
 {{< tab >}}
 
-## 0.1.7 for Android
+## 0.2.5 for Android
 
-Download [here](https://cdn.zapstore.dev/f3dadc262d504c0d1d656ee3424d960591076f74fdf38bca6cf09188b7426890) and install on your device.
+Download [here](https://cdn.zapstore.dev/bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397) and install on your device.
 
 {{< callout type="warning" >}}
 If this is the first time you install Zapstore on your device, it's important to verify this download.<br><br>
@@ -22,7 +22,7 @@ If you are updating, Android will take care of the verification for you.
 Are you on a computer? Open a terminal and run `shasum -a 256` on the downloaded file. It should show the following SHA-256 hash:
 
 ```text
-f3dadc262d504c0d1d656ee3424d960591076f74fdf38bca6cf09188b7426890 
+bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397 
 ```
 
 Are you on your Android device? Use [AppVerifier](https://github.com/soupslurpr/AppVerifier/releases/latest) and input the following APK certificate hash:
@@ -30,6 +30,8 @@ Are you on your Android device? Use [AppVerifier](https://github.com/soupslurpr/
 ```
 99e33b0c2d07e75fcd9df7e40e886646ff667e3aa6648e1a1160b036cf2b9320
 ```
+
+This can also be done in a computer if you have Android Tools installed, with `apksigner verify --print-certs zapstore.apk`.
 
 For extra assurances, make sure to double check these hashes on [Zapstore's profile on nostr](https://nosta.me/npub10r8xl2njyepcw2zwv3a6dyufj4e4ajx86hz6v4ehu4gnpupxxp7stjt2p8).
 
