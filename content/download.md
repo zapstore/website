@@ -19,7 +19,13 @@ If you are updating, Android will take care of the verification for you.
 
 ### Verification
 
-Are you on a computer? Open a terminal and run `shasum -a 256` on the downloaded file. It should show the following SHA-256 hash:
+**Visit [Who Signed This File](https://npub1p763d86hsj7xzggqeddy7u3hwlg9ku4twar3tvst3uyp9g88ncvqcj7hur.nsite.lol/800b9048974dfcac4e1e1b9afe0812d15e42a08264ba0b8877e22c2e6d2221ae)**.
+
+{{< callout type="warning" >}}
+**Disclaimer**: the author of Zapstore created that site and corresponding source code is at: [https://github.com/franzaps/whosignedthisfile](https://github.com/franzaps/whosignedthisfile)
+{{< /callout >}}
+
+Or otherwise, if you are you on a computer, open a terminal and run `shasum -a 256` on the downloaded file. It should show the following SHA-256 hash:
 
 ```text
 800b9048974dfcac4e1e1b9afe0812d15e42a08264ba0b8877e22c2e6d2221ae 
@@ -66,6 +72,14 @@ facdf270a5808b3b1e49491004c0db1b4e59b25e1849d5bec1ae86cfc9f75cc3
 ```
 c1445caff3cf6b2dc868434625a0d12fc7054eb65bb9ce3c684aaa34a69f4992
 ```
+
+### Verification
+
+You can visit [Who Signed This File](https://npub1p763d86hsj7xzggqeddy7u3hwlg9ku4twar3tvst3uyp9g88ncvqcj7hur.nsite.lol/) and input one of the hashes above. 
+
+{{< callout type="warning" >}}
+**Disclaimer**: the author of Zapstore created that site and corresponding source code is at: [https://github.com/franzaps/whosignedthisfile](https://github.com/franzaps/whosignedthisfile)
+{{< /callout >}}
 
 {{< /tab >}}
 
