@@ -1,6 +1,6 @@
 ---
 title: Download Zapstore
-date: 2024-08-22
+date: 2025-06-11
 draft: false
 ---
 
@@ -8,9 +8,9 @@ draft: false
 
 {{< tab >}}
 
-## 0.2.5 for Android
+## 0.2.6 for Android
 
-Download [here](https://cdn.zapstore.dev/bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397) and install on your device.
+Download [here](https://cdn.zapstore.dev/b15e06ae0d516d70777a94b96f24e0cda1dc05285bf8e20890a2b8e3524b9bc3) and install on your device.
 
 {{< callout type="warning" >}}
 If this is the first time you install Zapstore on your device, it's important to verify this download.<br><br>
@@ -22,7 +22,7 @@ If you are updating, Android will take care of the verification for you.
 Are you on a computer? Open a terminal and run `shasum -a 256` on the downloaded file. It should show the following SHA-256 hash:
 
 ```text
-bd5c21e3c37702de81c40d8425f8754d8739476ddd2daeba147e9e96eeb0e397 
+b15e06ae0d516d70777a94b96f24e0cda1dc05285bf8e20890a2b8e3524b9bc3 
 ```
 
 Are you on your Android device? Use [AppVerifier](https://github.com/soupslurpr/AppVerifier/releases/latest) and input the following APK certificate hash:
@@ -39,32 +39,32 @@ For extra assurances, make sure to double check these hashes on [Zapstore's prof
 
 {{< tab >}}
   
-## 0.1.2 for Linux and Mac
+## 0.2.0-rc3 CLI for Mac and Linux
 
 Download the file and open a terminal to run `shasum -a 256` on the downloaded file. The corresponding SHA-256 hash should match.
 
 ### MacOS (arm64)
 
-[Download](https://cdn.zapstore.dev/30438f5a972a1c0d7987a0486c76ca12ac9f42571b72f99fe040d146cabc4bb2) 
+[Download](http://cdn.zapstore.dev/6aab4ed12f057739f8f8d37530c197302339bb99d3653ed935017199aa06f344) 
 
 ```
-30438f5a972a1c0d7987a0486c76ca12ac9f42571b72f99fe040d146cabc4bb2
+6aab4ed12f057739f8f8d37530c197302339bb99d3653ed935017199aa06f344
 ```
 
 ### Linux (x86_64)
 
-[Download](https://cdn.zapstore.dev/0d684425c4bbd3fdecc58f7bf7fc55366d71b8ded9d68b3bbfcb3fcca1072325) 
+[Download](http://cdn.zapstore.dev/facdf270a5808b3b1e49491004c0db1b4e59b25e1849d5bec1ae86cfc9f75cc3) 
 
 ```
-0d684425c4bbd3fdecc58f7bf7fc55366d71b8ded9d68b3bbfcb3fcca1072325
+facdf270a5808b3b1e49491004c0db1b4e59b25e1849d5bec1ae86cfc9f75cc3
 ```
 
 ### Linux (aarch64)
 
-[Download](https://cdn.zapstore.dev/a1e80d5ef9845c0977fb593b609b9220b4e0826a11ad88d9575b354439225d98) 
+[Download](http://cdn.zapstore.dev/c1445caff3cf6b2dc868434625a0d12fc7054eb65bb9ce3c684aaa34a69f4992) 
 
 ```
-a1e80d5ef9845c0977fb593b609b9220b4e0826a11ad88d9575b354439225d98
+c1445caff3cf6b2dc868434625a0d12fc7054eb65bb9ce3c684aaa34a69f4992
 ```
 
 {{< /tab >}}
