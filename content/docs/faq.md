@@ -5,7 +5,7 @@ breadcrumbs: false
 
 ## What is Zapstore?
 
-Zapstore is a permissionless app store that allows users to verify apps, devs to sign their own apps, and users to discover new & exciting apps via their social graph! Zap Store makes it easy for enthusiasts & users to reward their app's dev via micropayments, and enables the dev to build a commuity around their app. 
+Zapstore is a permissionless app store that allows users to verify apps, devs to sign their own apps, and users to discover new & exciting apps via their social graph! Zapstore makes it easy for enthusiasts & users to reward their app's dev via micropayments, and enables the dev to build a commuity around their app. 
 
 
 ## Devs
@@ -21,9 +21,9 @@ Zapstore abstains from ads.
 
 Zapstore provides a CLI for signing, and uploading releases. App customers are able to verify developer's release signature.
 
-Zapstore builds on permissionless, open, and neutral micropayment protocol in the [Lightning Network]([url](https://lightning.network/)). No email, or phone number is required to send zaps to app devs via Zapstore.
+Zapstore builds on permissionless, open, and neutral micropayment protocol in the [Lightning Network]([url](https://lightning.network/)). No email or phone number is required to send zaps to app devs via Zapstore.
 
-Zapstore's social layer is powered by the permissionless, open, and neutral [nostr protocol]([url](https://fiatjaf.com/nostr.html)). Anyone can create, or utilize an existing nostr identity. 
+Zapstore's social layer is powered by the permissionless, open, and neutral [nostr protocol]([url](https://fiatjaf.com/nostr.html)). Anyone can create or utilize an existing nostr identity. 
 
 ### What does Zapstore use for the developer, user, and web-of-trust identities?
 Zapstore builds on the open, permissionless, and social [nostr protocol](https://github.com/nostr-protocol/nostr).
