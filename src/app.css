@@ -1,0 +1,543 @@
+@import "tailwindcss";
+
+/* Critical font-face declarations with block display to prevent FOUT/FOIT */
+@font-face {
+  font-family: 'Geist Sans';
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url('/fonts/geist-sans-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  font-style: normal;
+  font-display: block;
+  font-weight: 600;
+  src: url('/fonts/geist-sans-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  font-style: normal;
+  font-display: block;
+  font-weight: 700;
+  src: url('/fonts/geist-sans-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url('/fonts/geist-mono-latin-400-normal.woff2') format('woff2');
+}
+
+/* Dark theme configuration */
+:root {
+  /* Ultra-dark with subtle blue hue */
+  --background: 220 15% 6%;
+  --foreground: 0 0% 95%;
+  --card: 220 12% 9%;
+  --card-foreground: 0 0% 95%;
+  --popover: 220 12% 9%;
+  --popover-foreground: 0 0% 95%;
+  /* Header should remain neutral very dark grey */
+  --header: 0 0% 6%;
+  --header-foreground: 0 0% 95%;
+  /* Primary for CTAs/links (blue) */
+  --primary: 220 100% 66%;
+  --primary-foreground: 0 0% 98%;
+  /* Secondary neutral with blue hue */
+  --secondary: 220 10% 12%;
+  --secondary-foreground: 0 0% 92%;
+  /* Muted neutrals */
+  --muted: 220 10% 16%;
+  --muted-foreground: 220 10% 68%;
+  --accent: 220 12% 14%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 220 10% 20%;
+  --input: 220 10% 20%;
+  --ring: 220 15% 42%;
+}
+
+/* Prose styles for documentation */
+.prose {
+  color: hsl(var(--foreground));
+  max-width: none;
+  line-height: 1.75;
+}
+
+.prose h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: hsl(var(--foreground));
+}
+
+.prose h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.prose h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+}
+
+.prose h4 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.prose h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.prose h6 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.prose p {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.prose ul, .prose ol {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.625rem;
+}
+
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  font-style: italic;
+  border-left: 4px solid hsl(var(--border));
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.prose code {
+  background-color: hsl(var(--muted));
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-family: 'Geist Mono', monospace;
+  color: hsl(var(--foreground));
+}
+
+.prose pre {
+  background-color: hsl(var(--muted));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1rem;
+}
+
+.prose a {
+  color: hsl(var(--muted-foreground));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: hsl(var(--foreground));
+}
+
+.prose strong {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.prose th, .prose td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: hsl(var(--muted));
+  font-weight: 600;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 3rem 0;
+}
+
+/* Base styles */
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: linear-gradient(135deg, #0A0F1A 0%, #141A22 60%, #111723 100%);
+  color: #E8EAED;
+  font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom styles */
+.bg-background { background: linear-gradient(135deg, #0A0F1A 0%, #141A22 60%, #111723 100%); }
+.bg-foreground { background-color: #E8EAED; }
+.bg-card { background-color: rgba(15, 20, 27, 0.60); }
+.bg-card-strong { background-color: rgba(15, 20, 27, 0.80); }
+.bg-popover { background-color: #161C27; }
+.bg-primary { background-color: hsl(var(--primary)); }
+.bg-secondary { background-color: #64B5F6; }
+.bg-muted { background-color: #161C27; }
+.bg-accent { background-color: #161C27; }
+.bg-destructive { background-color: #ef4444; }
+/* Header utility (bars/rails surface gradient) */
+.bg-header { background: linear-gradient(135deg, #0F141B, #161C27); }
+
+.text-background { color: #0A0F1A; }
+.text-foreground { color: #E8EAED; }
+.text-card-foreground { color: hsl(var(--card-foreground)); }
+.text-popover-foreground { color: hsl(var(--popover-foreground)); }
+.text-primary { color: hsl(var(--primary)); }
+.text-primary-foreground { color: hsl(var(--primary-foreground)); }
+.text-secondary { color: #B8BCC8; }
+.text-secondary-foreground { color: hsl(var(--secondary-foreground)); }
+.text-muted { color: #C1C7CD; }
+.text-muted-foreground { color: rgba(232, 234, 237, 0.60); }
+.text-helper { color: rgba(232, 234, 237, 0.50); }
+.text-accent { color: hsl(var(--accent)); }
+.text-accent-foreground { color: hsl(var(--accent-foreground)); }
+.text-destructive { color: hsl(var(--destructive)); }
+.text-destructive-foreground { color: hsl(var(--destructive-foreground)); }
+/* Header text utility */
+.text-header-foreground { color: hsl(var(--header-foreground)); }
+
+.border-border { border-color: hsl(var(--border)); }
+.border-input { border-color: hsl(var(--input)); }
+.border-primary { border-color: hsl(var(--primary)); }
+.border-secondary { border-color: hsl(var(--secondary)); }
+.border-muted { border-color: hsl(var(--muted)); }
+
+.ring-ring { --tw-ring-color: hsl(var(--ring)); }
+
+/* Component styles */
+.gradient-text {
+  background-image: none;
+  color: hsl(var(--foreground));
+}
+
+.card-hover {
+  transition: all 0.3s;
+}
+
+.card-hover:hover {
+  border-color: hsl(var(--primary) / 0.5);
+  box-shadow: 0 10px 15px -3px hsl(var(--primary) / 0.05);
+}
+
+.glow {
+  position: relative;
+}
+
+.glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(to right, hsl(var(--muted)), hsl(var(--secondary)));
+  border-radius: 0.5rem;
+  filter: blur(20px);
+  opacity: 0.2;
+  transition: opacity 1s;
+}
+
+.group:hover .glow::before {
+  opacity: 0.4;
+  transition-duration: 0.2s;
+}
+
+.code-block {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.875rem;
+}
+
+/* Custom utilities */
+.font-sans { font-family: 'Geist Sans', system-ui, -apple-system, sans-serif; }
+.font-mono { font-family: 'Geist Mono', monospace; }
+
+/* Brand gradient utilities */
+.bg-brand-gradient { background: linear-gradient(135deg, #0A0F1A 0%, #141A22 60%, #111723 100%); }
+.bg-brand-gradient-v { background: linear-gradient(135deg, #0A0F1A 0%, #141A22 60%, #111723 100%); }
+.bg-brand-overlay-soft { background: transparent; }
+
+/* Geist font utilities */
+.font-geist-sans { font-family: 'Geist Sans', system-ui, -apple-system, sans-serif; }
+.font-geist-mono { font-family: 'Geist Mono', monospace; }
+
+.bg-primary\/10 { background-color: hsl(var(--primary) / 0.1); }
+.bg-primary\/20 { background-color: hsl(var(--primary) / 0.2); }
+.bg-primary\/5 { background-color: hsl(var(--primary) / 0.05); }
+.bg-primary\/90 { background-color: hsl(var(--primary) / 0.9); }
+.bg-background\/95 { background-color: hsl(var(--background) / 0.95); }
+.bg-background\/60 { background-color: hsl(var(--background) / 0.6); }
+
+.text-primary\/80 { color: hsl(var(--primary) / 0.8); }
+.border-primary\/50 { border-color: hsl(var(--primary) / 0.5); }
+.border-border\/40 { border-color: hsl(var(--border) / 0.4); }
+
+.shadow-primary\/25 { --tw-shadow-color: hsl(var(--primary) / 0.25); }
+.shadow-primary\/5 { --tw-shadow-color: hsl(var(--primary) / 0.05); }
+
+.hover\:bg-primary\/90:hover { background-color: hsl(220 100% 56%); }
+.hover\:text-primary\/80:hover { color: hsl(var(--primary) / 0.8); }
+.hover\:border-primary\/50:hover { border-color: hsl(var(--primary) / 0.5); }
+.hover\:shadow-primary\/5:hover { --tw-shadow-color: hsl(var(--primary) / 0.05); }
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection color */
+::selection {
+  background-color: hsl(var(--primary) / 0.3);
+  color: white;
+}
+
+/* Extra bold font weights for main headings */
+.font-black { font-weight: 900; }
+.font-extra-bold { font-weight: 800; }
+
+/* Floating App Icons Animation */
+.floating-icon {
+	animation: float 6s ease-in-out infinite;
+	transform: rotate(var(--tilt));
+	animation-delay: var(--delay);
+}
+
+@keyframes float {
+	0%, 100% {
+		transform: translateY(0px) rotate(var(--tilt));
+	}
+	50% {
+		transform: translateY(-20px) rotate(var(--tilt));
+	}
+}
+
+/* Hover effect for floating icons */
+.floating-icon:hover {
+	animation-play-state: paused;
+	transform: scale(1.1) rotate(var(--tilt));
+	transition: transform 0.3s ease;
+}
+
+/* Flowing particles animation */
+@keyframes flow-down {
+	0% {
+		transform: translateY(-100px) scale(0);
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.6;
+	}
+	100% {
+		transform: translateY(200px) scale(1);
+		opacity: 0;
+	}
+}
+
+/* Apply flowing animation to particles */
+.flowing-particle {
+	animation: flow-down 4s ease-in-out infinite;
+}
+
+/* Scrolling app icons animation */
+@keyframes scroll-left {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-scroll-left {
+	animation: scroll-left 45s linear infinite;
+}
+
+/* Pause animation on hover for better UX */
+.animate-scroll-left:hover {
+	animation-play-state: paused;
+}
+
+/* Floating app icons with staggered positioning */
+.floating-app-icon {
+	transform: translateY(var(--float-offset, 0px));
+	animation: float-gentle 6s ease-in-out infinite;
+	animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes float-gentle {
+	0%, 100% {
+		transform: translateY(var(--float-offset, 0px));
+	}
+	50% {
+		transform: translateY(calc(var(--float-offset, 0px) - 8px));
+	}
+}
+
+/* Hover effect for app icons */
+.floating-app-icon:hover {
+	animation-play-state: paused;
+	transform: translateY(calc(var(--float-offset, 0px) - 4px)) scale(1.05);
+	transition: transform 0.3s ease;
+} 
+
+/* Append: subtle hero animations and utilities */
+@keyframes subtle-pan {
+  0% { background-position: 0 0; }
+  100% { background-position: 48px 48px; }
+}
+
+.animate-subtle-pan {
+  animation: subtle-pan 18s linear infinite;
+}
+
+@keyframes slow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.animate-slow-pulse {
+  animation: slow-pulse 6s ease-in-out infinite;
+} 
+
+/* Narrower container on large screens */
+@media (min-width: 1024px) {
+  .container { max-width: 72rem; }
+}
+@media (min-width: 1280px) {
+  .container { max-width: 72rem; }
+}
+@media (min-width: 1536px) {
+  .container { max-width: 72rem; }
+}
+
+/* Fade out for zap shimmer */
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Animated arc stroke for world distribution */
+@keyframes arc-dash {
+  0% { stroke-dashoffset: var(--arc-len, 240); opacity: 0.25; }
+  40% { opacity: 0.9; }
+  100% { stroke-dashoffset: 0; opacity: 0.25; }
+}
+
+/* Lock shackle close animation */
+@keyframes lock-drop {
+  0% { transform: rotate(-22deg) translateY(-4px); opacity: .85; }
+  40% { transform: rotate(-8deg) translateY(-2px); opacity: .95; }
+  60% { transform: rotate(0deg) translateY(0); opacity: 1; }
+  100% { transform: rotate(0deg) translateY(0); opacity: 1; }
+}
+
+/* Gate barrier lift */
+@keyframes gate-lift {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-35deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Subtle dither overlay to reduce banding */
+.bg-dither {
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.012) 0, rgba(255,255,255,0) 2px),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.012) 0, rgba(255,255,255,0) 2px),
+    radial-gradient(circle at 25% 75%, rgba(255,255,255,0.012) 0, rgba(255,255,255,0) 2px),
+    radial-gradient(circle at 75% 25%, rgba(255,255,255,0.012) 0, rgba(255,255,255,0) 2px);
+  background-size: 128px 128px, 128px 128px, 128px 128px, 128px 128px;
+  background-repeat: repeat;
+}
+
+/* SVG gradient background utility */
+.bg-svg-gradient {
+  background-color: #0A0F1A;
+  background-image: radial-gradient(circle, rgba(10, 15, 26, 1) 0%, rgba(20, 26, 34, 1) 60%, rgba(17, 23, 35, 1) 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}

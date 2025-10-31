@@ -1,11 +1,23 @@
-# Hugo output
-public/
-resources/
-.hugo_build.lock
+node_modules
 
-# Editor
-.vscode/
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
 .DS_Store
-publish.sh
+Thumbs.db
 
-drafts/
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
