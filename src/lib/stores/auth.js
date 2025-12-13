@@ -151,3 +151,4 @@ export const connect = () => authStore.connect();
 export const disconnect = () => authStore.disconnect();
 export const isExtensionAvailable = () => authStore.isExtensionAvailable();
 
+

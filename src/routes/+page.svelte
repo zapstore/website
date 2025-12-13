@@ -231,32 +231,46 @@
 </section>
 
 <!-- Pillars Section -->
-<section class="py-12 lg:py-16 border-t border-border/50">
-	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<section class="py-16 lg:py-24 border-t border-border/50 relative overflow-hidden">
+	<!-- Section background decoration -->
+	<div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.08),transparent)]"></div>
+	
+	<div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 		<div
-			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto"
+			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-5 max-w-6xl mx-auto"
 		>
 			<!-- Social Discovery -->
 			<div class="group">
 				<div
-					class="relative h-full overflow-hidden rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-6 card-glow card-highlight"
+					class="pillar-card relative h-full overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-b from-card/90 to-card/50 backdrop-blur-xl p-7 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1"
 				>
+					<!-- Animated gradient background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-card opacity-90"
+						class="absolute inset-0 bg-gradient-to-br from-primary/25 via-primary/5 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
+					<!-- Floating orb -->
 					<div
-						class="absolute -right-10 -top-10 w-32 h-32 bg-primary/20 blur-3xl opacity-70"
+						class="absolute -right-8 -top-8 w-32 h-32 bg-primary/30 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-primary/40"
 					></div>
+					<!-- Grid pattern overlay -->
+					<div class="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+					<!-- Corner accent -->
+					<div class="absolute top-0 left-0 w-16 h-16 overflow-hidden">
+						<div class="absolute top-2 left-2 w-8 h-[2px] bg-gradient-to-r from-primary/60 to-transparent"></div>
+						<div class="absolute top-2 left-2 w-[2px] h-8 bg-gradient-to-b from-primary/60 to-transparent"></div>
+					</div>
+					
 					<div class="relative">
+						<!-- Large icon container -->
 						<div
-							class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4"
+							class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center mb-5 shadow-lg shadow-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
 						>
-							<Users class="h-5 w-5 text-primary" />
+							<Users class="h-7 w-7 text-primary" />
 						</div>
-						<h3 class="text-lg font-semibold text-foreground mb-2">
+						<h3 class="text-xl font-semibold text-foreground mb-3 tracking-tight">
 							Social discovery
 						</h3>
-						<p class="text-sm text-muted-foreground leading-relaxed">
+						<p class="text-[15px] text-muted-foreground leading-relaxed">
 							Find apps through catalogs and people you trust, not opaque
 							algorithms. See what your network is using and recommending.
 						</p>
@@ -267,24 +281,35 @@
 			<!-- Verified Apps -->
 			<div class="group">
 				<div
-					class="relative h-full overflow-hidden rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-6 card-glow card-highlight"
+					class="pillar-card relative h-full overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-b from-card/90 to-card/50 backdrop-blur-xl p-7 transition-all duration-500 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1"
 				>
+					<!-- Animated gradient background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-emerald-500/5 to-card opacity-90"
+						class="absolute inset-0 bg-gradient-to-br from-emerald-500/25 via-emerald-500/5 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
+					<!-- Floating orb -->
 					<div
-						class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-400/25 blur-3xl opacity-70"
+						class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-400/30 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-emerald-400/40"
 					></div>
+					<!-- Grid pattern overlay -->
+					<div class="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+					<!-- Corner accent -->
+					<div class="absolute top-0 left-0 w-16 h-16 overflow-hidden">
+						<div class="absolute top-2 left-2 w-8 h-[2px] bg-gradient-to-r from-emerald-500/60 to-transparent"></div>
+						<div class="absolute top-2 left-2 w-[2px] h-8 bg-gradient-to-b from-emerald-500/60 to-transparent"></div>
+					</div>
+					
 					<div class="relative">
+						<!-- Large icon container -->
 						<div
-							class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4"
+							class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/30 flex items-center justify-center mb-5 shadow-lg shadow-emerald-500/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
 						>
-							<Shield class="h-5 w-5 text-primary" />
+							<Shield class="h-7 w-7 text-emerald-400" />
 						</div>
-						<h3 class="text-lg font-semibold text-foreground mb-2">
+						<h3 class="text-xl font-semibold text-foreground mb-3 tracking-tight">
 							Verified apps
 						</h3>
-						<p class="text-sm text-muted-foreground leading-relaxed">
+						<p class="text-[15px] text-muted-foreground leading-relaxed">
 							Releases are cryptographically signed by the developer. You always
 							know exactly who built the software you're installing.
 						</p>
@@ -295,24 +320,35 @@
 			<!-- Support Developers -->
 			<div class="group">
 				<div
-					class="relative h-full overflow-hidden rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-6 card-glow card-highlight"
+					class="pillar-card relative h-full overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-b from-card/90 to-card/50 backdrop-blur-xl p-7 transition-all duration-500 hover:border-amber-500/40 hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-1"
 				>
+					<!-- Animated gradient background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-amber-400/20 via-amber-500/5 to-card opacity-90"
+						class="absolute inset-0 bg-gradient-to-br from-amber-500/25 via-amber-500/5 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
+					<!-- Floating orb -->
 					<div
-						class="absolute -right-10 -top-10 w-32 h-32 bg-amber-400/25 blur-3xl opacity-70"
+						class="absolute -right-8 -top-8 w-32 h-32 bg-amber-400/30 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-amber-400/40"
 					></div>
+					<!-- Grid pattern overlay -->
+					<div class="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+					<!-- Corner accent -->
+					<div class="absolute top-0 left-0 w-16 h-16 overflow-hidden">
+						<div class="absolute top-2 left-2 w-8 h-[2px] bg-gradient-to-r from-amber-500/60 to-transparent"></div>
+						<div class="absolute top-2 left-2 w-[2px] h-8 bg-gradient-to-b from-amber-500/60 to-transparent"></div>
+					</div>
+					
 					<div class="relative">
+						<!-- Large icon container -->
 						<div
-							class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4"
+							class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-500/30 flex items-center justify-center mb-5 shadow-lg shadow-amber-500/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
 						>
-							<Zap class="h-5 w-5 text-amber-500" />
+							<Zap class="h-7 w-7 text-amber-400" />
 						</div>
-						<h3 class="text-lg font-semibold text-foreground mb-2">
+						<h3 class="text-xl font-semibold text-foreground mb-3 tracking-tight">
 							Support developers
 						</h3>
-						<p class="text-sm text-muted-foreground leading-relaxed">
+						<p class="text-[15px] text-muted-foreground leading-relaxed">
 							Pay developers in bitcoin with zero fees or middlemen. They keep
 							100% – as it should be.
 						</p>
@@ -323,24 +359,35 @@
 			<!-- Open & Decentralized -->
 			<div class="group">
 				<div
-					class="relative h-full overflow-hidden rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-6 card-glow card-highlight"
+					class="pillar-card relative h-full overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-b from-card/90 to-card/50 backdrop-blur-xl p-7 transition-all duration-500 hover:border-sky-500/40 hover:shadow-2xl hover:shadow-sky-500/10 hover:-translate-y-1"
 				>
+					<!-- Animated gradient background -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-cyan-500/5 to-card opacity-90"
+						class="absolute inset-0 bg-gradient-to-br from-sky-500/25 via-cyan-500/5 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
 					></div>
+					<!-- Floating orb -->
 					<div
-						class="absolute -right-10 -top-10 w-32 h-32 bg-sky-400/25 blur-3xl opacity-70"
+						class="absolute -right-8 -top-8 w-32 h-32 bg-sky-400/30 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 group-hover:bg-sky-400/40"
 					></div>
+					<!-- Grid pattern overlay -->
+					<div class="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+					<!-- Corner accent -->
+					<div class="absolute top-0 left-0 w-16 h-16 overflow-hidden">
+						<div class="absolute top-2 left-2 w-8 h-[2px] bg-gradient-to-r from-sky-500/60 to-transparent"></div>
+						<div class="absolute top-2 left-2 w-[2px] h-8 bg-gradient-to-b from-sky-500/60 to-transparent"></div>
+					</div>
+					
 					<div class="relative">
+						<!-- Large icon container -->
 						<div
-							class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4"
+							class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500/20 to-sky-500/5 border border-sky-500/30 flex items-center justify-center mb-5 shadow-lg shadow-sky-500/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
 						>
-							<Globe class="h-5 w-5 text-primary" />
+							<Globe class="h-7 w-7 text-sky-400" />
 						</div>
-						<h3 class="text-lg font-semibold text-foreground mb-2">
+						<h3 class="text-xl font-semibold text-foreground mb-3 tracking-tight">
 							Fully open
 						</h3>
-						<p class="text-sm text-muted-foreground leading-relaxed">
+						<p class="text-[15px] text-muted-foreground leading-relaxed">
 							Open source and built on open protocols. Manage app catalogs or
 							create your own. No accounts, no KYC, no vendor lock-in.
 						</p>
