@@ -1,5 +1,6 @@
 import { SimplePool } from 'nostr-tools/pool';
 import * as nip19 from 'nostr-tools/nip19';
+import { bech32 } from '@scure/base';
 import { cacheEvent, getCachedEvent } from './event-cache.js';
 // Note: marked removed, using simple fallback for renderMarkdown
 
@@ -11,6 +12,7 @@ const SOCIAL_RELAYS = [
 	'wss://relay.nostr.band',
 	'wss://nos.lol'
 ];
+const PROFILE_RELAYS = Array.from(new Set([PROFILE_RELAY_URL, RELAY_URL, ...SOCIAL_RELAYS]));
 // Comments should only go to social relays (exclude primary relay)
 const COMMENT_RELAYS = Array.from(new Set(SOCIAL_RELAYS));
 const CONNECTION_TIMEOUT = 10000; // 10 seconds
@@ -133,7 +135,7 @@ export async function fetchProfile(pubkey) {
 			let eoseReceived = false;
 
 			const subscription = pool.subscribe(
-				[PROFILE_RELAY_URL],
+				PROFILE_RELAYS,
 				filter,
 				{
 					onevent(event) {
@@ -153,6 +155,8 @@ export async function fetchProfile(pubkey) {
 							picture: content.picture || '',
 							about: content.about || '',
 							nip05: content.nip05 || '',
+							lud16: content.lud16 || '', // Lightning Address
+							lud06: content.lud06 || '', // LNURL
 							createdAt: event.created_at
 						};
 
@@ -189,6 +193,92 @@ export async function fetchProfile(pubkey) {
 
 		} catch (err) {
 			console.error('Error in fetchProfile:', err);
+			reject(err);
+		}
+	});
+}
+
+/**
+ * Fetches profile information for a given pubkey, bypassing cache
+ * Used when we need fresh data (e.g., for zapping to ensure lud16 is present)
+ * @param {string} pubkey - The user's public key
+ * @returns {Promise<Object|null>} Profile object or null if not found
+ */
+export async function fetchProfileFresh(pubkey) {
+	return new Promise((resolve, reject) => {
+		try {
+			const pool = getPool();
+
+			const filter = {
+				kinds: [KIND_PROFILE],
+				authors: [pubkey],
+				limit: 1
+			};
+
+			console.log('Fetching profile fresh (no cache) for:', pubkey);
+
+			let foundProfile = null;
+			let eoseReceived = false;
+
+			const subscription = pool.subscribe(
+				PROFILE_RELAYS,
+				filter,
+				{
+					onevent(event) {
+						console.log('Found profile event:', event);
+						
+						let content = {};
+						try {
+							content = JSON.parse(event.content);
+						} catch (e) {
+							console.warn('Failed to parse profile content for', pubkey);
+						}
+
+						foundProfile = {
+							pubkey: event.pubkey,
+							name: content.name || content.display_name || '',
+							displayName: content.display_name || content.name || '',
+							picture: content.picture || '',
+							about: content.about || '',
+							nip05: content.nip05 || '',
+							lud16: content.lud16 || '', // Lightning Address
+							lud06: content.lud06 || '', // LNURL
+							createdAt: event.created_at
+						};
+
+						// Update cache with fresh data
+						cacheEvent(KIND_PROFILE, pubkey, foundProfile);
+						
+						eoseReceived = true;
+						subscription.close();
+						resolve(foundProfile);
+					},
+					oneose() {
+						console.log('EOSE received for profile, found:', !!foundProfile);
+						eoseReceived = true;
+						subscription.close();
+						resolve(foundProfile);
+					},
+					onclose() {
+						if (!eoseReceived) {
+							console.log('Profile subscription closed before EOSE');
+							resolve(foundProfile);
+						}
+					}
+				}
+			);
+
+			// Set a timeout
+			setTimeout(() => {
+				if (!eoseReceived) {
+					console.log('Timeout reached for profile fetch');
+					subscription.close();
+					resolve(foundProfile);
+				}
+			}, CONNECTION_TIMEOUT);
+
+		} catch (err) {
+			console.error('Error in fetchProfileFresh:', err);
 			reject(err);
 		}
 	});
@@ -923,7 +1013,7 @@ export function formatSats(sats) {
  */
 export function closePool() {
 	if (pool) {
-		pool.close([RELAY_URL, PROFILE_RELAY_URL, ...SOCIAL_RELAYS]);
+		pool.close(PROFILE_RELAYS);
 		pool = null;
 	}
 } 
@@ -1585,5 +1675,385 @@ export function parseCommentEvent(event) {
         // Is this a reply?
         isReply: String(tagMap.k || '') === String(KIND_COMMENT),
         fullEvent: event
+    };
+}
+
+// ============================================================================
+// NIP-57 Zapping Functions
+// ============================================================================
+
+const KIND_ZAP_REQUEST = 9734;
+
+/**
+ * Parses a Lightning Address (lud16) to get the LNURL endpoint
+ * @param {string} lud16 - Lightning address (e.g., user@domain.com)
+ * @returns {string} LNURL endpoint URL
+ */
+function parseLud16ToUrl(lud16) {
+    if (!lud16 || typeof lud16 !== 'string') return null;
+    const [name, domain] = lud16.split('@');
+    if (!name || !domain) return null;
+    return `https://${domain}/.well-known/lnurlp/${name}`;
+}
+
+/**
+ * Decodes a bech32-encoded LNURL (lud06) to get the endpoint URL
+ * Uses the bech32 library from nostr-tools
+ * @param {string} lud06 - Bech32-encoded LNURL
+ * @returns {string} LNURL endpoint URL
+ */
+function decodeLud06(lud06) {
+    if (!lud06 || typeof lud06 !== 'string') return null;
+	const normalized = lud06.trim().toLowerCase();
+	if (!normalized.startsWith('lnurl1')) return null;
+    
+    try {
+		const { words } = bech32.decode(normalized, 2000);
+		const data = bech32.fromWords(words);
+		const url = new TextDecoder().decode(Uint8Array.from(data));
+		
+		if (!url.startsWith('http')) {
+			console.warn('Decoded lud06 is not a valid http(s) URL:', url);
+			return null;
+		}
+
+		return url;
+    } catch (err) {
+        console.warn('Failed to decode lud06:', err);
+        return null;
+    }
+}
+
+/**
+ * Gets the zap endpoint URL for a given pubkey by fetching their profile
+ * Forces a fresh fetch to ensure we have lud16/lud06 fields
+ * @param {string} pubkey - The recipient's public key
+ * @returns {Promise<Object|null>} Object with endpoint URL and other LNURL data, or null
+ */
+export async function getZapEndpoint(pubkey) {
+    if (!pubkey) return null;
+
+    try {
+        // Fetch the profile fresh (skip cache to ensure we have lud16/lud06)
+        const profile = await fetchProfileFresh(pubkey);
+        if (!profile) {
+            console.warn('No profile found for pubkey:', pubkey);
+            return null;
+        }
+
+        console.log('Profile for zap:', { pubkey, lud16: profile.lud16, lud06: profile.lud06 });
+
+        // Try lud16 first (Lightning Address), then lud06 (LNURL)
+        let lnurlEndpoint = null;
+        if (profile.lud16) {
+            lnurlEndpoint = parseLud16ToUrl(profile.lud16);
+        } else if (profile.lud06) {
+            lnurlEndpoint = decodeLud06(profile.lud06);
+        }
+
+        if (!lnurlEndpoint) {
+            console.warn('No lightning address found in profile:', profile);
+            return null;
+        }
+
+        // Fetch LNURL metadata
+        const response = await fetch(lnurlEndpoint);
+        if (!response.ok) {
+            throw new Error(`LNURL fetch failed: ${response.status}`);
+        }
+
+        const lnurlData = await response.json();
+        
+        // Verify it supports zaps (must have allowsNostr and nostrPubkey)
+        if (!lnurlData.allowsNostr || !lnurlData.nostrPubkey) {
+            console.warn('LNURL endpoint does not support Nostr zaps');
+            return null;
+        }
+
+        return {
+            callback: lnurlData.callback,
+            minSendable: lnurlData.minSendable || 1000, // millisats
+            maxSendable: lnurlData.maxSendable || 100000000000, // millisats
+            nostrPubkey: lnurlData.nostrPubkey,
+            allowsNostr: lnurlData.allowsNostr,
+            lnurlEndpoint
+        };
+    } catch (err) {
+        console.error('Error getting zap endpoint:', err);
+        return null;
+    }
+}
+
+/**
+ * Creates and signs a zap request event (kind 9734) for an app
+ * @param {Object} app - The app object with pubkey and dTag
+ * @param {number} amountSats - Amount in satoshis
+ * @param {string} comment - Optional zap comment
+ * @param {Object} signer - NIP-07 signer (window.nostr)
+ * @returns {Promise<Object>} Signed zap request event
+ */
+export async function createZapRequest(app, amountSats, comment = '', signer = null) {
+    const nostrSigner = signer || (typeof window !== 'undefined' ? window.nostr : null);
+    if (!nostrSigner?.signEvent) {
+        throw new Error('Nostr extension not available. Please install/enable it.');
+    }
+
+    if (!app?.pubkey || !app?.dTag) {
+        throw new Error('Missing app information for zap request.');
+    }
+
+    if (!amountSats || amountSats <= 0) {
+        throw new Error('Invalid zap amount.');
+    }
+
+    const amountMillisats = amountSats * 1000;
+    const appAddress = `32267:${app.pubkey}:${app.dTag}`;
+
+    const tags = [
+        ['p', app.pubkey],
+        ['a', appAddress],
+        ['amount', String(amountMillisats)],
+        ['relays', ...SOCIAL_RELAYS]
+    ];
+
+    // Add event ID if available
+    if (app.id) {
+        tags.push(['e', app.id]);
+    }
+
+    const unsignedEvent = {
+        kind: KIND_ZAP_REQUEST,
+        created_at: Math.floor(Date.now() / 1000),
+        tags,
+        content: comment.trim()
+    };
+
+    const signedEvent = await nostrSigner.signEvent(unsignedEvent);
+    return signedEvent;
+}
+
+/**
+ * Requests a Lightning invoice from the LNURL callback with the zap request
+ * @param {string} callback - The LNURL callback URL
+ * @param {Object} zapRequest - Signed zap request event
+ * @param {number} amountSats - Amount in satoshis
+ * @returns {Promise<Object>} Object containing the invoice (pr) and other data
+ */
+export async function requestZapInvoice(callback, zapRequest, amountSats) {
+    if (!callback || !zapRequest) {
+        throw new Error('Missing callback or zap request.');
+    }
+
+    const amountMillisats = amountSats * 1000;
+    const zapRequestJson = JSON.stringify(zapRequest);
+
+    // Build callback URL with params
+    const url = new URL(callback);
+    url.searchParams.set('amount', String(amountMillisats));
+    // URLSearchParams will handle encoding - avoid double-encoding the zap request
+    url.searchParams.set('nostr', zapRequestJson);
+
+    try {
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+            throw new Error(`Invoice request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.status === 'ERROR') {
+            throw new Error(data.reason || 'Failed to get invoice');
+        }
+
+        if (!data.pr) {
+            throw new Error('No invoice returned from LNURL endpoint');
+        }
+
+        return {
+            invoice: data.pr,
+            successAction: data.successAction,
+            routes: data.routes
+        };
+    } catch (err) {
+        console.error('Error requesting zap invoice:', err);
+        throw err;
+    }
+}
+
+/**
+ * Full zap flow: get endpoint, create request, get invoice
+ * @param {Object} app - The app to zap
+ * @param {number} amountSats - Amount in satoshis
+ * @param {string} comment - Optional comment
+ * @param {Object} signer - NIP-07 signer
+ * @returns {Promise<Object>} Object with invoice and other details
+ */
+export async function createZap(app, amountSats, comment = '', signer = null) {
+    // 1. Get zap endpoint from publisher's profile
+    const endpoint = await getZapEndpoint(app.pubkey);
+    if (!endpoint) {
+        throw new Error('This publisher has not set up a Lightning address for receiving zaps.');
+    }
+
+    // 2. Validate amount
+    const amountMillisats = amountSats * 1000;
+    if (amountMillisats < endpoint.minSendable) {
+        throw new Error(`Minimum zap amount is ${Math.ceil(endpoint.minSendable / 1000)} sats.`);
+    }
+    if (amountMillisats > endpoint.maxSendable) {
+        throw new Error(`Maximum zap amount is ${Math.floor(endpoint.maxSendable / 1000)} sats.`);
+    }
+
+    // 3. Create and sign zap request
+    const zapRequest = await createZapRequest(app, amountSats, comment, signer);
+
+    // 4. Request invoice from LNURL endpoint
+    const invoiceData = await requestZapInvoice(endpoint.callback, zapRequest, amountSats);
+
+    return {
+        invoice: invoiceData.invoice,
+        zapRequest,
+        endpoint,
+        amountSats,
+        successAction: invoiceData.successAction
+    };
+}
+
+/**
+ * Subscribe to zap receipts (kind 9735) for a specific recipient
+ * Used to detect when a zap payment has been completed
+ * @param {string} recipientPubkey - The pubkey receiving the zap
+ * @param {string} zapRequestId - The ID of our zap request event
+ * @param {Function} onReceipt - Callback when receipt is received
+ * @param {Object} options - Extra matching hints
+ * @param {string} options.invoice - Optional BOLT11 invoice to match via bolt11 tag
+ * @param {string} options.appAddress - Optional a-tag (app address) to match
+ * @param {string} options.appEventId - Optional e-tag (app event id) to match
+ * @returns {Function} Unsubscribe function
+ */
+export function subscribeToZapReceipt(recipientPubkey, zapRequestId, onReceipt, options = {}) {
+    const pool = getPool();
+    let closed = false;
+    let foundReceipt = false;
+    const { invoice, appAddress, appEventId } = options;
+    
+    // Subscribe to all relays where zap receipts might appear
+    // Include common wallet/zap relays in addition to social relays
+    const zapRelays = [
+        ...SOCIAL_RELAYS,
+        RELAY_URL,
+        'wss://nos.lol',
+        'wss://relay.nostr.band',
+        'wss://nostr.wine'
+    ];
+    // Dedupe
+    const allRelays = [...new Set(zapRelays)];
+    
+    // Use a recent since to avoid getting flooded with old events
+    // But keep it open for new events after EOSE
+    const since = Math.floor(Date.now() / 1000) - 300; // Last 5 minutes
+    
+    // NOTE: Standard is lowercase 'p' tag, but we'll subscribe to both
+    // in case some implementations incorrectly use uppercase
+    const filters = [
+        {
+            kinds: [9735],
+            '#p': [recipientPubkey],
+            since
+        },
+        {
+            kinds: [9735],
+            '#P': [recipientPubkey],
+            since
+        }
+    ];
+
+    console.log('=== ZAP RECEIPT SUBSCRIPTION ===');
+    console.log('Relays:', allRelays);
+    console.log('Recipient pubkey:', recipientPubkey);
+    console.log('Zap request ID to match:', zapRequestId);
+    console.log('Filters:', JSON.stringify(filters));
+
+    const subscription = pool.subscribeMany(
+        allRelays,
+        filters,
+        {
+            onevent(event) {
+                if (closed || foundReceipt) return;
+                
+                console.log('=== RECEIVED ZAP RECEIPT ===');
+                console.log('Event ID:', event.id);
+                console.log('Event kind:', event.kind);
+                console.log('Event tags:', JSON.stringify(event.tags));
+                
+                // Helper to finalize on match
+                const finalizeMatch = () => {
+                    console.log('*** MATCHING ZAP RECEIPT FOUND! ***');
+                    foundReceipt = true;
+                    const parsedZap = parseZapEventWithSender(event);
+                    onReceipt(parsedZap);
+                };
+                
+                // 1) Primary match: description tag contains zap request JSON with matching id
+                const descriptionTag = event.tags.find(t => t[0] === 'description');
+                if (descriptionTag && descriptionTag[1]) {
+                    try {
+                        const zapRequest = JSON.parse(descriptionTag[1]);
+                        console.log('Embedded zap request ID:', zapRequest.id);
+                        if (zapRequest.id === zapRequestId) {
+                            finalizeMatch();
+                            return;
+                        }
+                    } catch (e) {
+                        console.log('Failed to parse description tag:', e);
+                    }
+                }
+                
+                // 2) Fallback: bolt11 tag matches the invoice we requested
+                if (invoice) {
+                    const bolt11Tag = event.tags.find(t => t[0] === 'bolt11');
+                    if (bolt11Tag && bolt11Tag[1] && bolt11Tag[1].toLowerCase() === invoice.toLowerCase()) {
+                        console.log('Matched via bolt11 tag');
+                        finalizeMatch();
+                        return;
+                    }
+                }
+                
+                // 3) Fallback: a-tag matches app address
+                if (appAddress) {
+                    const aTag = event.tags.find(t => t[0] === 'a' && t[1] === appAddress);
+                    if (aTag) {
+                        console.log('Matched via a-tag');
+                        finalizeMatch();
+                        return;
+                    }
+                }
+                
+                // 4) Fallback: e-tag matches app event id
+                if (appEventId) {
+                    const eTag = event.tags.find(t => t[0] === 'e' && t[1] === appEventId);
+                    if (eTag) {
+                        console.log('Matched via e-tag');
+                        finalizeMatch();
+                        return;
+                    }
+                }
+            },
+            oneose() {
+                console.log('EOSE received - subscription will continue listening for new events');
+            },
+            onclose(reasons) {
+                console.log('Zap receipt subscription closed:', reasons);
+            }
+        }
+    );
+
+    // Return unsubscribe function
+    return () => {
+        if (!closed) {
+            closed = true;
+            subscription.close();
+            console.log('Unsubscribed from zap receipts');
+        }
     };
 }

@@ -32,6 +32,7 @@
 	} from "$lib/nostr.js";
 	import ProfileInfo from "$lib/components/ProfileInfo.svelte";
 	import AppComments from "$lib/components/AppComments.svelte";
+	import ZapButton from "$lib/components/ZapButton.svelte";
 	import Prism from "prismjs";
 	import "prismjs/components/prism-json";
 
@@ -101,6 +102,12 @@
 	let zapsData = { zaps: [], totalSats: 0, count: 0 };
 	let loadingZaps = true;
 	let zapperProfiles = new Map();
+
+	// Zapstore's own pubkey - don't show zap button for apps signed by Zapstore
+	const ZAPSTORE_PUBKEY = '78ce6faa72264387284e647ba6938995735ec8c7d5c5a65737e55130f026307d';
+	
+	// Show zap button only if: not signed by Zapstore, OR has existing zaps
+	$: showZapButton = app?.pubkey !== ZAPSTORE_PUBKEY || zapsData.count > 0;
 	// Derived version shown on page and passed to comments
 	// Use FileMetadata version (from 1063 event) only
 	// Extract from parsed version field, or fallback to fullEvent tags if cache is stale
@@ -250,6 +257,31 @@
 		const jsonString = JSON.stringify(data, null, 2);
 		return Prism.highlight(jsonString, Prism.languages.json, "json");
 	}
+
+	// Handle zap received event from ZapButton
+	function handleZapReceived(event) {
+		const { zapReceipt } = event.detail;
+		console.log('Zap received in app page:', zapReceipt);
+		
+		// Add the new zap to the list immediately
+		if (zapReceipt) {
+			zapsData = {
+				zaps: [zapReceipt, ...zapsData.zaps],
+				totalSats: zapsData.totalSats + zapReceipt.amountSats,
+				count: zapsData.count + 1
+			};
+			
+			// Fetch the zapper's profile if not already loaded
+			if (zapReceipt.senderPubkey && !zapperProfiles.has(zapReceipt.senderPubkey)) {
+				fetchProfile(zapReceipt.senderPubkey).then(profile => {
+					if (profile) {
+						zapperProfiles.set(zapReceipt.senderPubkey, profile);
+						zapperProfiles = zapperProfiles; // Trigger reactivity
+					}
+				});
+			}
+		}
+	}
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -304,50 +336,48 @@
 		<!-- App Header -->
 		<div class="bg-card border border-border rounded-lg p-8 mb-8">
 			<!-- App Icon and Name -->
-			<div class="flex items-start gap-6 mb-6">
+			<div class="flex items-center gap-6 mb-6">
 				{#if app.icon}
 					<img
 						src={app.icon}
 						alt={app.name}
-						class="w-24 h-24 lg:w-32 lg:h-32 rounded-xl object-cover flex-shrink-0"
+						class="w-20 h-20 lg:w-26 lg:h-26 rounded-xl object-cover flex-shrink-0"
 					/>
 				{:else}
 					<div
-						class="w-24 h-24 lg:w-32 lg:h-32 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0"
+						class="w-20 h-20 lg:w-26 lg:h-26 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0"
 					>
-						<Package class="h-12 w-12 lg:h-16 lg:w-16 text-primary" />
+						<Package class="h-10 w-10 lg:h-14 lg:w-14 text-primary" />
 					</div>
 				{/if}
-				<div class="min-w-0 flex-1 pt-4">
-					<h1 class="text-3xl lg:text-4xl font-black">{app.name}</h1>
-					{#if fileVersion}
-						<div class="mt-2">
+				<div class="min-w-0 flex-1">
+					<!-- App Name + Version Pill -->
+					<div class="flex items-center gap-3 flex-wrap">
+						<h1 class="text-3xl lg:text-4xl font-black">{app.name}</h1>
+						{#if fileVersion}
 							<span
-								class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-primary text-white"
+								class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary text-white"
 							>
 								{fileVersion}
 							</span>
-						</div>
-					{/if}
+						{/if}
+					</div>
+					<!-- Published by -->
+					<div class="mt-1">
+						<ProfileInfo pubkey={app.pubkey} npub={app.npub} size="xs" />
+					</div>
 				</div>
 			</div>
 
-			<!-- Publisher Profile -->
-			<div class="mb-6">
-				<ProfileInfo pubkey={app.pubkey} npub={app.npub} size="lg" />
-			</div>
-
-			<!-- Zaps Section - only show when loaded and has zaps -->
-			{#if !loadingZaps && zapsData.count > 0}
-				<div
-					class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg"
-				>
-					<div class="flex flex-col sm:flex-row sm:items-center gap-4">
-						<!-- Zap Stats -->
-						<div class="flex items-center gap-3">
-							<div class="p-2 bg-amber-500/20 rounded-lg">
-								<Zap class="h-6 w-6 text-amber-500" />
-							</div>
+			<!-- Zaps Section -->
+			<div class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+				<div class="flex flex-col sm:flex-row sm:items-center gap-4">
+					<!-- Zap Stats -->
+					<div class="flex items-center gap-3">
+						<div class="p-2 bg-amber-500/20 rounded-lg">
+							<Zap class="h-6 w-6 text-amber-500" />
+						</div>
+						{#if !loadingZaps && zapsData.count > 0}
 							<div>
 								<div class="text-lg font-bold text-amber-500">
 									{formatSats(zapsData.totalSats)}
@@ -356,46 +386,57 @@
 									{zapsData.count} zap{zapsData.count !== 1 ? "s" : ""}
 								</div>
 							</div>
-						</div>
-
-						<!-- Zapper Avatars (deduplicated) -->
-						{#if uniqueZappers.length > 0}
-							<div class="flex items-center gap-2 flex-1">
-								<div class="text-xs text-muted-foreground">from</div>
-								<div class="flex -space-x-2 overflow-hidden">
-									{#each uniqueZappers.slice(0, 8) as zap}
-										{@const profile = zapperProfiles.get(zap.senderPubkey)}
-										{#if profile?.picture}
-											<img
-												src={profile.picture}
-												alt={profile.displayName || profile.name || "Zapper"}
-												title={profile.displayName ||
-													profile.name ||
-													"Anonymous"}
-												class="w-7 h-7 rounded-full border-2 border-background object-cover bg-muted"
-											/>
-										{:else if zap.senderPubkey}
-											<div
-												class="w-7 h-7 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center"
-												title="Anonymous"
-											>
-												<User class="h-3 w-3 text-primary" />
-											</div>
-										{/if}
-									{/each}
-									{#if uniqueZappers.length > 8}
-										<div
-											class="w-7 h-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
-										>
-											+{uniqueZappers.length - 8}
-										</div>
-									{/if}
-								</div>
-							</div>
+						{:else if loadingZaps}
+							<div class="text-sm text-muted-foreground">Loading zaps...</div>
+						{:else}
+							<div class="text-sm text-muted-foreground">No zaps yet</div>
 						{/if}
 					</div>
+
+					<!-- Zapper Avatars (deduplicated) -->
+					{#if !loadingZaps && uniqueZappers.length > 0}
+						<div class="flex items-center gap-2 flex-1">
+							<div class="text-xs text-muted-foreground">from</div>
+							<div class="flex -space-x-2 overflow-hidden">
+								{#each uniqueZappers.slice(0, 8) as zap}
+									{@const profile = zapperProfiles.get(zap.senderPubkey)}
+									{#if profile?.picture}
+										<img
+											src={profile.picture}
+											alt={profile.displayName || profile.name || "Zapper"}
+											title={profile.displayName ||
+												profile.name ||
+												"Anonymous"}
+											class="w-7 h-7 rounded-full border-2 border-background object-cover bg-muted"
+										/>
+									{:else if zap.senderPubkey}
+										<div
+											class="w-7 h-7 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center"
+											title="Anonymous"
+										>
+											<User class="h-3 w-3 text-primary" />
+										</div>
+									{/if}
+								{/each}
+								{#if uniqueZappers.length > 8}
+									<div
+										class="w-7 h-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
+									>
+										+{uniqueZappers.length - 8}
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Zap Button (hidden for Zapstore-signed apps unless they have existing zaps) -->
+					{#if showZapButton}
+						<div class="sm:ml-auto">
+							<ZapButton {app} size="md" on:zapReceived={handleZapReceived} />
+						</div>
+					{/if}
 				</div>
-			{/if}
+			</div>
 
 			<!-- Description -->
 			<div

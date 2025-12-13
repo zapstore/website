@@ -13,6 +13,7 @@
 		publishAppComment,
 		fetchProfile,
 	} from "$lib/nostr.js";
+	import { authStore, connect } from "$lib/stores/auth.js";
 
 	export let app;
 	export let version = "";
@@ -21,27 +22,13 @@
 	let loading = true;
 	let error = "";
 	let commentText = "";
-	let nostrAvailable = false;
-	let userPubkey = null;
-	let connecting = false;
 	let submitting = false;
 	let profiles = {};
 
 	const MAX_LENGTH = 1000;
 
 	onMount(() => {
-		nostrAvailable = typeof window !== "undefined" && !!window.nostr;
 		loadComments();
-
-		// Light heartbeat to detect extension enable/disable without user refresh
-		const interval = setInterval(() => {
-			const available = typeof window !== "undefined" && !!window.nostr;
-			if (available !== nostrAvailable) {
-				nostrAvailable = available;
-			}
-		}, 3000);
-
-		return () => clearInterval(interval);
 	});
 
 	async function loadComments() {
@@ -90,26 +77,18 @@
 		return profiles[pubkey]?.picture || null;
 	}
 
-	async function connectNostr() {
-		if (!nostrAvailable || !window?.nostr) {
-			error = "No NIP-07 browser extension detected.";
-			return;
-		}
-
-		connecting = true;
+	async function handleSignIn() {
 		error = "";
 		try {
-			userPubkey = await window.nostr.getPublicKey();
+			await connect();
 		} catch (err) {
-			console.error("Failed to connect nostr extension", err);
-			error = err?.message || "Failed to connect to nostr extension.";
-		} finally {
-			connecting = false;
+			console.error("Failed to sign in", err);
+			error = err?.message || "Failed to sign in. Please try again.";
 		}
 	}
 
 	$: canSubmit =
-		!!commentText.trim() && !!userPubkey && !!version && !submitting;
+		!!commentText.trim() && $authStore.isConnected && !!version && !submitting;
 
 	async function submitComment() {
 		if (!canSubmit) return;
@@ -132,6 +111,11 @@
 			submitting = false;
 		}
 	}
+
+	// Get display name for current user
+	$: currentUserDisplay = $authStore.profile?.displayName || 
+		$authStore.profile?.name || 
+		($authStore.npub ? `${$authStore.npub.slice(0, 12)}...` : '');
 </script>
 
 <div class="flex items-center gap-2 mb-4">
@@ -164,7 +148,7 @@
 				<div class="flex gap-3">
 					<!-- Avatar -->
 					<a
-						href="/apps/developer/{comment.npub}"
+						href="/p/{comment.npub}"
 						class="flex-shrink-0 block hover:opacity-80 transition-opacity"
 					>
 						{#if getAvatar(comment.pubkey)}
@@ -188,7 +172,7 @@
 						<!-- Author, version & timestamp -->
 						<div class="flex items-center flex-wrap gap-x-2 gap-y-1 mb-1">
 							<a
-								href="/apps/developer/{comment.npub}"
+								href="/p/{comment.npub}"
 								class="font-semibold text-sm text-foreground hover:text-primary transition-colors"
 							>
 								{getDisplayName(comment.pubkey, comment.npub)}
@@ -222,30 +206,44 @@
 {/if}
 
 <div class="mt-6 pt-4 border-t border-border/60">
-	{#if !nostrAvailable}
-		<div class="flex items-start gap-2 text-sm text-muted-foreground">
-			<AlertCircle class="h-4 w-4 mt-0.5 text-warning" />
-			<span>Enable or install a NIP-07 browser extension to comment.</span>
+	{#if $authStore.isConnecting}
+		<div class="flex items-center gap-2 text-sm text-muted-foreground">
+			<Loader2 class="h-4 w-4 animate-spin" />
+			<span>Connecting...</span>
 		</div>
-	{:else if !userPubkey}
-		<button
-			type="button"
-			on:click={connectNostr}
-			disabled={connecting}
-			class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-		>
-			{#if connecting}
-				<Loader2 class="h-4 w-4 animate-spin" />
-				Connecting...
-			{:else}
+	{:else if !$authStore.isConnected}
+		<div class="flex items-center gap-3">
+			<button
+				type="button"
+				on:click={handleSignIn}
+				class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+			>
 				<LogIn class="h-4 w-4" />
-				Sign in with Nostr extension
-			{/if}
-		</button>
-	{:else}
-		<div class="mb-2 text-xs text-muted-foreground">
-			Signed in as <span class="font-mono">{userPubkey}</span>
+				Sign in to comment
+			</button>
+			<span class="text-sm text-muted-foreground">
+				Requires a Nostr extension
+			</span>
 		</div>
+	{:else}
+		<!-- Signed in user info -->
+		<div class="flex items-center gap-2 mb-3">
+			{#if $authStore.profile?.picture}
+				<img
+					src={$authStore.profile.picture}
+					alt="Your avatar"
+					class="h-6 w-6 rounded-full object-cover bg-muted"
+				/>
+			{:else}
+				<div class="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+					<User class="h-3 w-3 text-primary" />
+				</div>
+			{/if}
+			<span class="text-sm text-muted-foreground">
+				Commenting as <span class="font-medium text-foreground">{currentUserDisplay}</span>
+			</span>
+		</div>
+
 		<div class="space-y-3">
 			<textarea
 				bind:value={commentText}

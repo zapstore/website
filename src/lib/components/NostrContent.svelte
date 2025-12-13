@@ -79,7 +79,7 @@
 	// Get profile URL for a pubkey
 	function getProfileUrl(pubkey) {
 		const npub = pubkeyToNpub(pubkey);
-		return `/apps/developer/${npub}`;
+		return `/p/${npub}`;
 	}
 
 	// Split text by newlines for proper rendering

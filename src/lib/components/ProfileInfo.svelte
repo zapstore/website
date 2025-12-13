@@ -5,7 +5,7 @@
 
 	export let pubkey;
 	export let npub = '';
-	export let size = 'sm'; // 'sm' or 'lg'
+	export let size = 'sm'; // 'xs', 'sm' or 'lg'
 	export let showLabel = true; // Whether to show "Published by:" label
 	export let disableLink = false; // Whether to disable the link functionality
 
@@ -23,11 +23,12 @@
 		}
 	});
 
-	$: displayName = profile?.displayName || profile?.name || '';
+	// Truncate npub for fallback display
+	$: truncatedNpub = npub ? `${npub.slice(0, 12)}...${npub.slice(-6)}` : '';
+	$: displayName = profile?.displayName || profile?.name || truncatedNpub;
 	$: avatarUrl = profile?.picture || '';
-	$: profileUrl = npub ? `/apps/developer/${npub}` : '#';
-	$: shouldHideProfile = !loading && !displayName;
-	$: shouldShowProfile = !loading && displayName && pubkey !== '78ce6faa72264387284e647ba6938995735ec8c7d5c5a65737e55130f026307d';
+	$: profileUrl = npub ? `/p/${npub}` : '#';
+	$: shouldShowProfile = !loading && pubkey !== '78ce6faa72264387284e647ba6938995735ec8c7d5c5a65737e55130f026307d';
 
 	// Size classes per variant
 	$: sizeClasses =
@@ -35,14 +36,18 @@
 			? 'h-10 w-10 text-base'
 			: size === 'sm'
 			? 'h-8 w-8 text-sm'
+			: size === 'xs'
+			? 'h-5 w-5 text-[10px]'
 			: 'h-6 w-6 text-[10px]';
 	$: iconSize =
-		size === 'lg' ? 'h-5 w-5' : size === 'sm' ? 'h-4 w-4' : 'h-3 w-3';
+		size === 'lg' ? 'h-5 w-5' : size === 'sm' ? 'h-4 w-4' : size === 'xs' ? 'h-2.5 w-2.5' : 'h-3 w-3';
 	$: labelClass = size === 'lg' ? 'text-sm text-muted-foreground' : 'text-xs text-muted-foreground';
 	$: nameClass =
 		size === 'lg'
 			? 'font-bold text-foreground text-base'
 			: size === 'sm'
+			? 'font-medium text-foreground text-sm'
+			: size === 'xs'
 			? 'font-medium text-foreground text-sm'
 			: 'font-medium text-foreground text-xs';
 </script>

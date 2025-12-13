@@ -12,6 +12,8 @@ const MAX_EVENTS = 500;
 const EVICTION_BATCH = 50; // Remove this many when limit is reached
 
 let dbPromise = null;
+// Simple in-memory fallback for SSR/server environments
+const memoryStore = new Map();
 
 /**
  * Check if we're in a browser environment with IndexedDB
@@ -74,6 +76,66 @@ function getCacheKey(kind, id) {
     return `${kind}:${id}`;
 }
 
+// In-memory fallback implementations for SSR
+function cacheEventMemory(kind, lookupKey, data) {
+    const cacheKey = getCacheKey(kind, lookupKey);
+    const now = Date.now();
+
+    memoryStore.set(cacheKey, {
+        cacheKey,
+        kind,
+        lookupKey,
+        data,
+        lastAccessed: now,
+        createdAt: now
+    });
+
+    evictMemoryIfNeeded();
+}
+
+function getCachedEventMemory(kind, lookupKey) {
+    const cacheKey = getCacheKey(kind, lookupKey);
+    const record = memoryStore.get(cacheKey);
+    if (!record) return null;
+
+    record.lastAccessed = Date.now();
+    memoryStore.set(cacheKey, record);
+    return record.data;
+}
+
+function getCachedEventsByKindMemory(kind) {
+    const results = [];
+    for (const record of memoryStore.values()) {
+        if (record.kind === kind) {
+            results.push(record.data);
+        }
+    }
+    return results;
+}
+
+function evictMemoryIfNeeded() {
+    if (memoryStore.size <= MAX_EVENTS) return;
+
+    const records = Array.from(memoryStore.values()).sort((a, b) => a.lastAccessed - b.lastAccessed);
+    const toDelete = records.slice(0, Math.min(EVICTION_BATCH, records.length));
+
+    for (const record of toDelete) {
+        memoryStore.delete(record.cacheKey);
+    }
+}
+
+function clearMemoryCache() {
+    memoryStore.clear();
+}
+
+function getMemoryCacheStats() {
+    const byKind = {};
+    for (const record of memoryStore.values()) {
+        byKind[record.kind] = (byKind[record.kind] || 0) + 1;
+    }
+    return { total: memoryStore.size, byKind };
+}
+
 /**
  * Stores an event in the cache
  * @param {number} kind - Event kind (32267, 30063, 1063, 0)
@@ -82,6 +144,11 @@ function getCacheKey(kind, id) {
  * @returns {Promise<void>}
  */
 export async function cacheEvent(kind, lookupKey, data) {
+    if (!isBrowser()) {
+        cacheEventMemory(kind, lookupKey, data);
+        return;
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -118,6 +185,10 @@ export async function cacheEvent(kind, lookupKey, data) {
  * @returns {Promise<Object|null>} Cached data or null
  */
 export async function getCachedEvent(kind, lookupKey) {
+    if (!isBrowser()) {
+        return getCachedEventMemory(kind, lookupKey);
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -151,6 +222,10 @@ export async function getCachedEvent(kind, lookupKey) {
  * @returns {Promise<Array>} Array of cached data objects
  */
 export async function getCachedEventsByKind(kind) {
+    if (!isBrowser()) {
+        return getCachedEventsByKindMemory(kind);
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readonly');
@@ -176,6 +251,11 @@ export async function getCachedEventsByKind(kind) {
  * @returns {Promise<void>}
  */
 async function evictIfNeeded() {
+    if (!isBrowser()) {
+        evictMemoryIfNeeded();
+        return;
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -220,6 +300,11 @@ async function evictIfNeeded() {
  * @returns {Promise<void>}
  */
 export async function clearCache() {
+    if (!isBrowser()) {
+        clearMemoryCache();
+        return;
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -242,6 +327,10 @@ export async function clearCache() {
  * @returns {Promise<Object>} Stats object with counts by kind
  */
 export async function getCacheStats() {
+    if (!isBrowser()) {
+        return getMemoryCacheStats();
+    }
+
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readonly');
