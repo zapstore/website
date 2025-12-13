@@ -25,6 +25,7 @@
 		fetchFileMetadata,
 		fetchAppAndFileZaps,
 		fetchProfile,
+		getCachedZaps,
 		getCachedApp,
 		getCachedRelease,
 		cacheApp,
@@ -163,6 +164,13 @@
 			if (cachedRelease) {
 				latestRelease = cachedRelease;
 				loadingRelease = false;
+			}
+
+			// Also try cached zaps for instant UI
+			const cachedZaps = await getCachedZaps(app.id, app.pubkey, app.dTag);
+			if (cachedZaps) {
+				zapsData = cachedZaps;
+				loadingZaps = false;
 			}
 		}
 

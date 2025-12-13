@@ -12,6 +12,8 @@
 		formatDate,
 		publishAppComment,
 		fetchProfile,
+	getCachedComments,
+	cacheComments,
 	} from "$lib/nostr.js";
 	import { authStore, connect } from "$lib/stores/auth.js";
 
@@ -33,18 +35,42 @@
 
 	async function loadComments() {
 		if (!app?.pubkey || !app?.dTag) return;
+	error = "";
+
+	let cachedComments = null;
+	let shouldLoadProfiles = false;
+
+	// Try cached comments first for instant UI
+	try {
+		cachedComments = await getCachedComments(app.pubkey, app.dTag);
+		if (cachedComments?.length) {
+			comments = cachedComments;
+			loading = false;
+			shouldLoadProfiles = true;
+		}
+	} catch (e) {
+		// Ignore cache errors
+	}
+
+	if (!cachedComments?.length) {
 		loading = true;
-		error = "";
-		try {
-			comments = await fetchAppComments(app.pubkey, app.dTag);
+	}
+
+	try {
+		const freshComments = await fetchAppComments(app.pubkey, app.dTag);
+		comments = freshComments;
+		cacheComments(app.pubkey, app.dTag, freshComments);
+		shouldLoadProfiles = true;
+	} catch (err) {
+		console.error("Failed to load comments", err);
+		error = err?.message || "Failed to load comments.";
+	} finally {
+		if (shouldLoadProfiles && comments.length > 0) {
 			// Fetch profiles for all comment authors
 			await loadProfiles();
-		} catch (err) {
-			console.error("Failed to load comments", err);
-			error = err?.message || "Failed to load comments.";
-		} finally {
-			loading = false;
 		}
+		loading = false;
+	}
 	}
 
 	async function loadProfiles() {

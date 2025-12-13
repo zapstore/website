@@ -16,6 +16,7 @@ const PROFILE_RELAYS = Array.from(new Set([PROFILE_RELAY_URL, RELAY_URL, ...SOCI
 // Comments should only go to social relays (exclude primary relay)
 const COMMENT_RELAYS = Array.from(new Set(SOCIAL_RELAYS));
 const CONNECTION_TIMEOUT = 10000; // 10 seconds
+const KIND_ZAP_RECEIPT = 9735;
 
 // Event kinds
 const KIND_PROFILE = 0;
@@ -94,6 +95,45 @@ export function cacheRelease(release, appDTag) {
 		const cacheKey = `${release.pubkey}:${appDTag}`;
 		cacheEvent(KIND_RELEASE, cacheKey, release);
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Zaps caching (kind 9735 grouped per app)
+// ---------------------------------------------------------------------------
+function getZapsCacheKey(appEventId, pubkey, appId) {
+	// Prefer the specific app event id; fallback to stable pubkey:dTag
+	return appEventId || `${pubkey}:${appId}`;
+}
+
+export async function getCachedZaps(appEventId, pubkey, appId) {
+	const key = getZapsCacheKey(appEventId, pubkey, appId);
+	if (!key) return null;
+	return await getCachedEvent(KIND_ZAP_RECEIPT, key);
+}
+
+export function cacheZaps(appEventId, pubkey, appId, zapsData) {
+	const key = getZapsCacheKey(appEventId, pubkey, appId);
+	if (!key || !zapsData) return;
+	cacheEvent(KIND_ZAP_RECEIPT, key, zapsData);
+}
+
+// ---------------------------------------------------------------------------
+// Comments caching (kind 1111 grouped per app)
+// ---------------------------------------------------------------------------
+function getCommentsCacheKey(pubkey, appId) {
+	return pubkey && appId ? `${pubkey}:${appId}` : null;
+}
+
+export async function getCachedComments(pubkey, appId) {
+	const key = getCommentsCacheKey(pubkey, appId);
+	if (!key) return null;
+	return await getCachedEvent(KIND_COMMENT, key);
+}
+
+export function cacheComments(pubkey, appId, comments) {
+	const key = getCommentsCacheKey(pubkey, appId);
+	if (!key || !comments) return;
+	cacheEvent(KIND_COMMENT, key, comments);
 }
 
 /**
@@ -1360,11 +1400,16 @@ export async function fetchAppAndFileZaps(appEventId, pubkey, appId, fileEventId
                 
                 console.log('Zap fetch complete:', sortedZaps.length, 'unique zaps, total:', totalSats, 'sats');
                 
-                resolve({
+                const result = {
                     zaps: sortedZaps,
                     totalSats: totalSats,
                     count: sortedZaps.length
-                });
+                };
+
+                // Cache for instant reuse
+                cacheZaps(appEventId, pubkey, appId, result);
+                
+                resolve(result);
             }
             
             const subscription = pool.subscribe(
@@ -1385,7 +1430,8 @@ export async function fetchAppAndFileZaps(appEventId, pubkey, appId, fileEventId
                         eoseCount++;
                         console.log(`EOSE received from ${eoseCount}/${totalRelays} relays, have ${zapEvents.length} zaps so far`);
                         
-                        if (eoseCount >= totalRelays) {
+                        // If we already have data, resolve as soon as the first relay finishes
+                        if (zapEvents.length > 0 || eoseCount >= totalRelays) {
                             subscription.close();
                             finalize();
                         }
@@ -1513,6 +1559,9 @@ export async function fetchAppComments(pubkey, appId, { limit = 200 } = {}) {
                     (a, b) => b.createdAt - a.createdAt
                 );
 
+                // Cache full list for instant reloads
+                cacheComments(pubkey, appId, finalEvents);
+
                 resolve(finalEvents);
             }
 
@@ -1525,7 +1574,8 @@ export async function fetchAppComments(pubkey, appId, { limit = 200 } = {}) {
                     },
                     oneose() {
                         eoseCount++;
-                        if (eoseCount >= totalRelays) {
+                        // Resolve early once we have data and the first relay finishes
+                        if (events.length > 0 || eoseCount >= totalRelays) {
                             subscription.close();
                             finalize();
                         }
