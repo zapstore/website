@@ -1,5 +1,6 @@
 import { SimplePool } from 'nostr-tools/pool';
 import * as nip19 from 'nostr-tools/nip19';
+import { cacheEvent, getCachedEvent } from './event-cache.js';
 // Note: marked removed, using simple fallback for renderMarkdown
 
 const RELAY_URL = 'wss://relay.zapstore.dev';
@@ -10,13 +11,88 @@ const SOCIAL_RELAYS = [
 	'wss://relay.nostr.band',
 	'wss://nos.lol'
 ];
+// Comments should only go to social relays (exclude primary relay)
+const COMMENT_RELAYS = Array.from(new Set(SOCIAL_RELAYS));
 const CONNECTION_TIMEOUT = 10000; // 10 seconds
+
+// Event kinds
+const KIND_PROFILE = 0;
+const KIND_COMMENT = 1111;
+const KIND_FILE_METADATA = 1063;
+const KIND_RELEASE = 30063;
+const KIND_APP = 32267;
 
 // Create a global pool instance
 let pool = null;
 
-// Profile cache to avoid repeated requests
-const profileCache = new Map();
+// Apps list cache for discover page state persistence
+let discoverPageState = {
+	apps: [],
+	hasMore: true,
+	expanded: false,
+	query: ''
+};
+
+/**
+ * Gets the discover page state
+ * @returns {Object} The current discover page state
+ */
+export function getDiscoverPageState() {
+	return discoverPageState;
+}
+
+/**
+ * Sets the discover page state
+ * @param {Object} state - The state to save
+ */
+export function setDiscoverPageState(state) {
+	discoverPageState = { ...discoverPageState, ...state };
+}
+
+/**
+ * Gets a cached app by pubkey and dTag
+ * @param {string} pubkey - The app's pubkey
+ * @param {string} dTag - The app's d-tag
+ * @returns {Promise<Object|null>} Cached app or null
+ */
+export async function getCachedApp(pubkey, dTag) {
+	const cacheKey = `${pubkey}:${dTag}`;
+	return await getCachedEvent(KIND_APP, cacheKey);
+}
+
+/**
+ * Caches an app in IndexedDB
+ * @param {Object} app - The app to cache
+ */
+export function cacheApp(app) {
+	if (app && app.pubkey && app.dTag) {
+		const cacheKey = `${app.pubkey}:${app.dTag}`;
+		cacheEvent(KIND_APP, cacheKey, app);
+	}
+}
+
+/**
+ * Gets a cached release by pubkey and dTag
+ * @param {string} pubkey - The release's pubkey
+ * @param {string} dTag - The app's d-tag
+ * @returns {Promise<Object|null>} Cached release or null
+ */
+export async function getCachedRelease(pubkey, dTag) {
+	const cacheKey = `${pubkey}:${dTag}`;
+	return await getCachedEvent(KIND_RELEASE, cacheKey);
+}
+
+/**
+ * Caches a release in IndexedDB
+ * @param {Object} release - The release to cache
+ * @param {string} appDTag - The app's d-tag (for cache key)
+ */
+export function cacheRelease(release, appDTag) {
+	if (release && release.pubkey && appDTag) {
+		const cacheKey = `${release.pubkey}:${appDTag}`;
+		cacheEvent(KIND_RELEASE, cacheKey, release);
+	}
+}
 
 /**
  * Gets or creates the global SimplePool instance
@@ -35,9 +111,10 @@ function getPool() {
  * @returns {Promise<Object|null>} Profile object or null if not found
  */
 export async function fetchProfile(pubkey) {
-	// Check cache first
-	if (profileCache.has(pubkey)) {
-		return profileCache.get(pubkey);
+	// Check IndexedDB cache
+	const cached = await getCachedEvent(KIND_PROFILE, pubkey);
+	if (cached) {
+		return cached;
 	}
 
 	return new Promise((resolve, reject) => {
@@ -45,7 +122,7 @@ export async function fetchProfile(pubkey) {
 			const pool = getPool();
 
 			const filter = {
-				kinds: [0],
+				kinds: [KIND_PROFILE],
 				authors: [pubkey],
 				limit: 1
 			};
@@ -79,8 +156,8 @@ export async function fetchProfile(pubkey) {
 							createdAt: event.created_at
 						};
 
-						// Cache the profile
-						profileCache.set(pubkey, foundProfile);
+						// Cache in IndexedDB
+						cacheEvent(KIND_PROFILE, pubkey, foundProfile);
 						
 						eoseReceived = true;
 						subscription.close();
@@ -90,12 +167,6 @@ export async function fetchProfile(pubkey) {
 						console.log('EOSE received for profile, found:', !!foundProfile);
 						eoseReceived = true;
 						subscription.close();
-						
-						// Cache null result to avoid repeated requests
-						if (!foundProfile) {
-							profileCache.set(pubkey, null);
-						}
-						
 						resolve(foundProfile);
 					},
 					onclose() {
@@ -172,8 +243,16 @@ export function renderMarkdown(markdown) {
         }
 
         function applyInlineMarkdown(s) {
+            // Fix existing <a> tags without target="_blank" - add target and rel attributes
+            s = s.replace(/<a\s+href=["']([^"']+)["'](?![^>]*target=)([^>]*)>/gi, '<a href="$1" target="_blank" rel="noopener noreferrer"$2>');
             // Links [text](url)
             s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            // Plain URLs (not already in an anchor tag) - use placeholder approach for safety
+            s = s.replace(/(^|[^"'>])(https?:\/\/[^\s<>"'\)]+)/g, function(match, prefix, url) {
+                // Don't convert if it appears to be inside an existing tag attribute
+                if (prefix === '=' || prefix === '/') return match;
+                return prefix + '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+            });
             // Bold **text**
             s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             // Italic *text*
@@ -540,7 +619,6 @@ export function parseAppEvent(event) {
 		descriptionHtml: renderMarkdown(description),
 		icon: icon,
 		images: images,
-		version: content.version || tagMap.version || '',
 		url: content.url || content.website || tagMap.url || '',
 		downloadUrl: content.downloadUrl || content.download || tagMap.download || '',
 		repository: content.repository || content.repo || content.source || tagMap.repository || '',
@@ -758,25 +836,25 @@ export function parseZapEvent(event) {
 	});
 
 	// Extract amount from bolt11 invoice if available
-	let amount = 0;
+	let amountSats = 0;
 	const bolt11 = tagMap.bolt11;
 	if (bolt11) {
 		try {
-			// Simple regex to extract amount from bolt11 (this is a basic implementation)
-			const amountMatch = bolt11.match(/lnbc(\d+)([munp]?)/);
+			// BOLT11 format: lnbc<amount><multiplier>...
+			// Multipliers: m=milli (0.001), u=micro (0.000001), n=nano (0.000000001), p=pico (0.000000000001)
+			const amountMatch = bolt11.match(/lnbc(\d+)([munp]?)/i);
 			if (amountMatch) {
-				let value = parseInt(amountMatch[1]);
-				const unit = amountMatch[2];
+				const value = parseInt(amountMatch[1]);
+				const unit = amountMatch[2]?.toLowerCase() || '';
 				
-				// Convert to millisats
+				// Convert to satoshis (1 BTC = 100,000,000 sats)
 				switch (unit) {
-					case 'm': value *= 100000; break; // milli-bitcoin
-					case 'u': value *= 100; break;     // micro-bitcoin  
-					case 'n': value *= 0.1; break;    // nano-bitcoin
-					case 'p': value *= 0.0001; break; // pico-bitcoin
-					default: value *= 100000000; break; // bitcoin
+					case 'm': amountSats = value * 100000; break;      // milli-bitcoin: 1 mBTC = 100,000 sats
+					case 'u': amountSats = value * 100; break;         // micro-bitcoin: 1 uBTC = 100 sats
+					case 'n': amountSats = Math.floor(value / 10); break;  // nano-bitcoin: 10 nBTC = 1 sat
+					case 'p': amountSats = Math.floor(value / 10000); break; // pico-bitcoin: 10000 pBTC = 1 sat
+					default: amountSats = value * 100000000; break;    // bitcoin: 1 BTC = 100,000,000 sats
 				}
-				amount = Math.floor(value);
 			}
 		} catch (e) {
 			console.warn('Failed to parse bolt11 amount:', e);
@@ -800,8 +878,7 @@ export function parseZapEvent(event) {
 		pubkey: event.pubkey,
 		npub: pubkeyToNpub(event.pubkey),
 		createdAt: event.created_at,
-		amount: amount, // in millisats
-		amountSats: Math.floor(amount / 1000), // in sats
+		amountSats: amountSats,
 		description: description,
 		preimage: tagMap.preimage || '',
 		bolt11: bolt11 || '',
@@ -855,10 +932,21 @@ export function closePool() {
  * Fetches the latest release (kind 30063) for an app via its 'a' tag
  * The app event should include an 'a' tag like: 30063:<pubkey>:<app-id>@<version>
  * @param {Object} app - Parsed app object returned by parseAppEvent
+ * @param {Object} options - Options
+ * @param {boolean} options.skipCache - Skip cache lookup and force fetch
  * @returns {Promise<Object|null>} Parsed release object or null
  */
-export async function fetchLatestReleaseForApp(app) {
+export async function fetchLatestReleaseForApp(app, { skipCache = false } = {}) {
     if (!app || !app.pubkey || !app.dTag) return null;
+
+    // Check cache first (unless skipCache is true)
+    if (!skipCache) {
+        const cached = await getCachedRelease(app.pubkey, app.dTag);
+        if (cached) {
+            console.log('Using cached release for', app.dTag);
+            return cached;
+        }
+    }
 
     // Kind 30063 release events point back to the app via '#a' = '32267:<pubkey>:<app-id>'
     // Query by that reference and optionally by author
@@ -868,7 +956,7 @@ export async function fetchLatestReleaseForApp(app) {
         try {
             const pool = getPool();
             const filter = {
-                kinds: [30063],
+                kinds: [KIND_RELEASE],
                 '#a': [aValue],
                 authors: [app.pubkey],
                 limit: 5
@@ -887,13 +975,24 @@ export async function fetchLatestReleaseForApp(app) {
                     oneose() {
                         eoseReceived = true;
                         releases.sort((a, b) => b.createdAt - a.createdAt);
+                        const latestRelease = releases[0] || null;
+                        
+                        // Cache the release
+                        if (latestRelease) {
+                            cacheRelease(latestRelease, app.dTag);
+                        }
+                        
                         subscription.close();
-                        resolve(releases[0] || null);
+                        resolve(latestRelease);
                     },
                     onclose() {
                         if (!eoseReceived) {
                             releases.sort((a, b) => b.createdAt - a.createdAt);
-                            resolve(releases[0] || null);
+                            const latestRelease = releases[0] || null;
+                            if (latestRelease) {
+                                cacheRelease(latestRelease, app.dTag);
+                            }
+                            resolve(latestRelease);
                         }
                     }
                 }
@@ -903,7 +1002,11 @@ export async function fetchLatestReleaseForApp(app) {
                 if (!eoseReceived) {
                     subscription.close();
                     releases.sort((a, b) => b.createdAt - a.createdAt);
-                    resolve(releases[0] || null);
+                    const latestRelease = releases[0] || null;
+                    if (latestRelease) {
+                        cacheRelease(latestRelease, app.dTag);
+                    }
+                    resolve(latestRelease);
                 }
             }, CONNECTION_TIMEOUT);
         } catch (err) {
@@ -922,22 +1025,17 @@ export function parseReleaseEvent(event) {
     // Extract tags into a map (first occurrence)
     const tagMap = {};
     const allATags = [];
+    const allETags = [];
     for (const tag of event.tags || []) {
         if (Array.isArray(tag) && tag.length >= 2) {
             const [k, v] = tag;
             if (k === 'a') allATags.push(v);
+            if (k === 'e') allETags.push(v);
             if (!tagMap[k]) tagMap[k] = v;
         }
     }
 
-    // Version is usually part of 'd' tag like '<app-id>@<version>'
-    let version = '';
     const dTag = tagMap.d || '';
-    if (dTag.includes('@')) {
-        const parts = dTag.split('@');
-        version = parts[1] || '';
-    }
-
     const url = tagMap.url || '';
     const content = event.content || '';
 
@@ -949,10 +1047,543 @@ export function parseReleaseEvent(event) {
         npub: pubkeyToNpub(event.pubkey),
         dTag: dTag,
         aTags: allATags,
-        version: version,
+        eTags: allETags,  // References to 1063 file metadata events
         url: url,
         notes: content,
         notesHtml: renderMarkdown(content),
+        fullEvent: event
+    };
+}
+
+/**
+ * Gets a cached file metadata event by event ID
+ * @param {string} eventId - The event ID
+ * @returns {Promise<Object|null>} Cached file metadata or null
+ */
+export async function getCachedFileMetadata(eventId) {
+    return await getCachedEvent(KIND_FILE_METADATA, eventId);
+}
+
+/**
+ * Caches a file metadata event in IndexedDB
+ * @param {Object} fileMeta - The file metadata to cache
+ */
+export function cacheFileMetadata(fileMeta) {
+    if (fileMeta && fileMeta.id) {
+        cacheEvent(KIND_FILE_METADATA, fileMeta.id, fileMeta);
+    }
+}
+
+/**
+ * Fetches file metadata events (kind 1063) by their event IDs
+ * @param {string[]} eventIds - Array of event IDs to fetch
+ * @returns {Promise<Array>} Array of parsed file metadata objects
+ */
+export async function fetchFileMetadata(eventIds) {
+    if (!eventIds || eventIds.length === 0) return [];
+
+    // Check cache first for each event ID
+    const results = [];
+    const missingIds = [];
+    
+    for (const eventId of eventIds) {
+        const cached = await getCachedFileMetadata(eventId);
+        if (cached) {
+            results.push(cached);
+        } else {
+            missingIds.push(eventId);
+        }
+    }
+    
+    // If all were cached, return immediately
+    if (missingIds.length === 0) {
+        console.log('All file metadata found in cache');
+        return results;
+    }
+
+    return new Promise((resolve, reject) => {
+        try {
+            const pool = getPool();
+
+            const filter = {
+                kinds: [KIND_FILE_METADATA],
+                ids: missingIds
+            };
+
+            console.log('Fetching file metadata with filter:', filter);
+
+            const events = [];
+            let eoseReceived = false;
+
+            const subscription = pool.subscribe(
+                [RELAY_URL],
+                filter,
+                {
+                    onevent(event) {
+                        console.log('Received file metadata event:', event.id);
+                        const parsed = parseFileMetadataEvent(event);
+                        events.push(parsed);
+                        // Cache it
+                        cacheFileMetadata(parsed);
+                    },
+                    oneose() {
+                        console.log('EOSE received for file metadata, got', events.length, 'events');
+                        eoseReceived = true;
+                        subscription.close();
+                        resolve([...results, ...events]);
+                    },
+                    onclose() {
+                        if (!eoseReceived) {
+                            console.log('File metadata subscription closed before EOSE');
+                            resolve([...results, ...events]);
+                        }
+                    }
+                }
+            );
+
+            setTimeout(() => {
+                if (!eoseReceived) {
+                    console.log('Timeout reached for file metadata fetch');
+                    subscription.close();
+                    resolve([...results, ...events]);
+                }
+            }, CONNECTION_TIMEOUT);
+
+        } catch (err) {
+            console.error('Error in fetchFileMetadata:', err);
+            reject(err);
+        }
+    });
+}
+
+/**
+ * Fetches the version for an app from its FileMetadata
+ * @param {Object} app - The app object
+ * @returns {Promise<string|null>} The version string or null
+ */
+export async function fetchAppVersion(app) {
+    if (!app || !app.pubkey || !app.dTag) return null;
+    
+    try {
+        // Get the latest release for this app
+        const release = await fetchLatestReleaseForApp(app);
+        if (!release || !release.eTags || release.eTags.length === 0) {
+            return null;
+        }
+        
+        // Fetch file metadata from the release
+        const fileMetadata = await fetchFileMetadata(release.eTags);
+        if (!fileMetadata || fileMetadata.length === 0) {
+            return null;
+        }
+        
+        // Find the first file metadata with a version
+        for (const f of fileMetadata) {
+            // Try parsed version first
+            if (f?.version && String(f.version).trim().length > 0) {
+                return f.version;
+            }
+            // Fallback: extract from fullEvent tags if available
+            if (f?.fullEvent?.tags) {
+                const versionTag = f.fullEvent.tags.find(t => t[0] === 'version');
+                if (versionTag && versionTag[1] && String(versionTag[1]).trim().length > 0) {
+                    return versionTag[1];
+                }
+            }
+        }
+        
+        return null;
+    } catch (err) {
+        console.warn('Error fetching app version:', err);
+        return null;
+    }
+}
+
+/**
+ * Parses a file metadata event (kind 1063)
+ * @param {Object} event - Raw nostr event
+ * @returns {Object} Parsed file metadata object
+ */
+export function parseFileMetadataEvent(event) {
+    const tagMap = {};
+    for (const tag of event.tags || []) {
+        if (Array.isArray(tag) && tag.length >= 2) {
+            const [k, v] = tag;
+            if (!tagMap[k]) tagMap[k] = v;
+        }
+    }
+
+    return {
+        id: event.id,
+        kind: event.kind,
+        createdAt: event.created_at,
+        pubkey: event.pubkey,
+        npub: pubkeyToNpub(event.pubkey),
+        url: tagMap.url || '',
+        mimeType: tagMap.m || '',
+        hash: tagMap.x || '',
+        size: tagMap.size || '',
+        version: tagMap.version || '',
+        fullEvent: event
+    };
+}
+
+/**
+ * Fetches zaps for app (32267) and file metadata (1063) events
+ * @param {string} appEventId - The app event ID
+ * @param {string} pubkey - The app publisher's public key
+ * @param {string} appId - The app's d-tag identifier
+ * @param {string[]} fileEventIds - Optional array of file metadata event IDs
+ * @returns {Promise<Object>} Object containing zaps array and total amount
+ */
+export async function fetchAppAndFileZaps(appEventId, pubkey, appId, fileEventIds = []) {
+    return new Promise((resolve, reject) => {
+        try {
+            const pool = getPool();
+            
+            const aTagValue = `32267:${pubkey}:${appId}`;
+            const allEventIds = [appEventId, ...fileEventIds].filter(Boolean);
+            
+            // Query zap receipts by recipient pubkey
+            const filter = {
+                kinds: [9735],
+                '#p': [pubkey],
+                limit: 200
+            };
+
+            console.log('Fetching zaps with filter:', JSON.stringify(filter));
+            console.log('Looking for zaps with a tag:', aTagValue);
+            console.log('Or e tags:', allEventIds);
+
+            const zapEvents = [];
+            let eoseCount = 0;
+            let resolved = false;
+            const totalRelays = SOCIAL_RELAYS.length;
+            
+            function finalize() {
+                if (resolved) return;
+                resolved = true;
+                
+                const uniqueZaps = removeDuplicateZaps(zapEvents);
+                const sortedZaps = uniqueZaps.sort((a, b) => b.createdAt - a.createdAt);
+                const totalSats = sortedZaps.reduce((sum, zap) => sum + zap.amountSats, 0);
+                
+                console.log('Zap fetch complete:', sortedZaps.length, 'unique zaps, total:', totalSats, 'sats');
+                
+                resolve({
+                    zaps: sortedZaps,
+                    totalSats: totalSats,
+                    count: sortedZaps.length
+                });
+            }
+            
+            const subscription = pool.subscribe(
+                SOCIAL_RELAYS,
+                filter,
+                {
+                    onevent(event) {
+                        // Check if this zap is relevant to our app (has matching 'a' or 'e' tag)
+                        const hasMatchingATag = event.tags.some(t => t[0] === 'a' && t[1] === aTagValue);
+                        const hasMatchingETag = allEventIds.length > 0 && event.tags.some(t => t[0] === 'e' && allEventIds.includes(t[1]));
+                        
+                        if (hasMatchingATag || hasMatchingETag) {
+                            console.log('Received relevant zap event:', event.id);
+                            zapEvents.push(parseZapEventWithSender(event));
+                        }
+                    },
+                    oneose() {
+                        eoseCount++;
+                        console.log(`EOSE received from ${eoseCount}/${totalRelays} relays, have ${zapEvents.length} zaps so far`);
+                        
+                        if (eoseCount >= totalRelays) {
+                            subscription.close();
+                            finalize();
+                        }
+                    },
+                    onclose(reason) {
+                        console.log('Zap subscription closed:', reason);
+                        if (!resolved) {
+                            finalize();
+                        }
+                    }
+                }
+            );
+
+            // Timeout - resolve with whatever we have
+            setTimeout(() => {
+                if (!resolved) {
+                    console.log('Timeout reached for zap fetch, got', zapEvents.length, 'zaps');
+                    subscription.close();
+                    finalize();
+                }
+            }, CONNECTION_TIMEOUT);
+
+        } catch (err) {
+            console.error('Error in fetchAppAndFileZaps:', err);
+            reject(err);
+        }
+    });
+}
+
+/**
+ * Parses a zap event and extracts the sender pubkey from description
+ * @param {Object} event - Raw zap event
+ * @returns {Object} Parsed zap object with sender info
+ */
+export function parseZapEventWithSender(event) {
+    const baseZap = parseZapEvent(event);
+    
+    // Extract sender pubkey from the description (zap request)
+    let senderPubkey = '';
+    try {
+        const descriptionTag = event.tags.find(tag => tag[0] === 'description');
+        if (descriptionTag && descriptionTag[1]) {
+            const descEvent = JSON.parse(descriptionTag[1]);
+            senderPubkey = descEvent.pubkey || '';
+        }
+    } catch (e) {
+        console.warn('Failed to parse zap sender:', e);
+    }
+    
+    return {
+        ...baseZap,
+        senderPubkey: senderPubkey,
+        senderNpub: senderPubkey ? pubkeyToNpub(senderPubkey) : ''
+    };
+}
+
+/**
+ * Publish a signed event to the default relays (waits for at least one OK)
+ * @param {Object} event - Signed nostr event
+ * @param {string[]} relays - Relays to publish to
+ * @returns {Promise<Object>} Publish result info
+ */
+export async function publishToRelays(
+    event,
+    relays = COMMENT_RELAYS
+) {
+    const pool = getPool();
+    const uniqueRelays = Array.from(new Set(relays));
+
+    // Publish to each relay individually so we can track failures
+    const results = await Promise.allSettled(
+        uniqueRelays.map((url) => pool.publish([url], event))
+    );
+
+    const okCount = results.filter((r) => r.status === 'fulfilled').length;
+    const failCount = results.length - okCount;
+
+    if (okCount === 0) {
+        throw new Error('Failed to publish event to any relay');
+    }
+
+    return { okCount, failCount };
+}
+
+/**
+ * Fetch comments (kind 1111) for an app using its 'a' tag reference
+ * @param {string} pubkey - App publisher pubkey
+ * @param {string} appId - App d-tag identifier
+ * @param {Object} options - Additional options
+ * @param {number} options.limit - Max events to fetch
+ * @returns {Promise<Array>} Parsed comment objects
+ */
+export async function fetchAppComments(pubkey, appId, { limit = 200 } = {}) {
+    if (!pubkey || !appId) return [];
+
+    return new Promise((resolve, reject) => {
+        try {
+            const pool = getPool();
+            const appAddress = `32267:${pubkey}:${appId}`;
+
+            const filter = {
+                kinds: [KIND_COMMENT],
+                '#A': [appAddress],
+                limit
+            };
+
+            const events = [];
+            let eoseCount = 0;
+            let resolved = false;
+            const totalRelays = COMMENT_RELAYS.length;
+
+            function finalize() {
+                if (resolved) return;
+                resolved = true;
+
+                // Deduplicate by event id only (same event from multiple relays)
+                const uniqueById = new Map();
+                for (const evt of events) {
+                    if (!uniqueById.has(evt.id)) {
+                        uniqueById.set(evt.id, evt);
+                    }
+                }
+
+                const finalEvents = Array.from(uniqueById.values()).sort(
+                    (a, b) => b.createdAt - a.createdAt
+                );
+
+                resolve(finalEvents);
+            }
+
+            const subscription = pool.subscribe(
+                COMMENT_RELAYS,
+                filter,
+                {
+                    onevent(event) {
+                        events.push(parseCommentEvent(event));
+                    },
+                    oneose() {
+                        eoseCount++;
+                        if (eoseCount >= totalRelays) {
+                            subscription.close();
+                            finalize();
+                        }
+                    },
+                    onclose() {
+                        finalize();
+                    }
+                }
+            );
+
+            setTimeout(() => {
+                if (!resolved) {
+                    subscription.close();
+                    finalize();
+                }
+            }, CONNECTION_TIMEOUT);
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+/**
+ * Publish a comment (kind 1111) for an app using the browser nostr extension
+ * @param {Object} app - App object containing pubkey and dTag
+ * @param {string} content - Comment text
+ * @param {any} signer - NIP-07 signer (defaults to window.nostr when available)
+ * @param {string} version - Optional version string to tag the comment
+ * @returns {Promise<Object>} The signed event
+ */
+/**
+ * Publishes a comment on an app (kind 1111) following NIP-22
+ * 
+ * Tag structure:
+ * - Root comment on App:
+ *   - Root scope (uppercase): A=32267:<pubkey>:<identifier>, K=32267, P=<app_pubkey>
+ *   - Parent (lowercase, same as root because no nesting UI): a=<address>, e=<event_id>, k=32267, p=<app_pubkey>
+ *   - Version thread tag: v=<version>
+ * - Reply to comment:
+ *   - Same root scope A/K/P/v
+ *   - Parent comment: e=<parent_id>, k=1111, p=<parent_pubkey>
+ * 
+ * @param {Object} app - The app object with pubkey and dTag
+ * @param {string} content - Comment text
+ * @param {Object} signer - NIP-07 signer (window.nostr)
+ * @param {string} version - Version string used as thread key (from FileMetadata)
+ * @param {Object} [parentComment] - Optional parent comment for replies
+ * @param {string} [parentComment.id] - Parent comment event id
+ * @param {string} [parentComment.pubkey] - Parent comment author pubkey
+ */
+export async function publishAppComment(app, content, signer, version, parentComment = null) {
+    const nostrSigner = signer || (typeof window !== 'undefined' ? window.nostr : null);
+    if (!nostrSigner?.signEvent) {
+        throw new Error('Nostr extension not available. Please install/enable it.');
+    }
+
+    const trimmed = (content || '').trim();
+    if (!trimmed) {
+        throw new Error('Comment cannot be empty.');
+    }
+
+    if (!app?.pubkey || !app?.dTag) {
+        throw new Error('Missing app information for comment.');
+    }
+
+    if (!version) {
+        throw new Error('Version is required as thread key.');
+    }
+
+    const appAddress = `32267:${app.pubkey}:${app.dTag}`;
+    const rootKind = String(KIND_APP);
+    const tags = [
+        ['A', appAddress, RELAY_URL],
+        ['K', rootKind],
+        ['P', app.pubkey, RELAY_URL],
+        ['v', version]
+    ];
+
+    // Parent references (lowercase) - for top-level comments the parent is the app event itself
+    if (parentComment?.id && parentComment?.pubkey) {
+        tags.push(['e', parentComment.id, RELAY_URL, parentComment.pubkey]);
+        tags.push(['k', String(KIND_COMMENT)]);
+        tags.push(['p', parentComment.pubkey, RELAY_URL]);
+    } else {
+        tags.push(['a', appAddress, RELAY_URL, app.pubkey]);
+        if (app.id) {
+            tags.push(['e', app.id, RELAY_URL, app.pubkey]);
+        }
+        tags.push(['k', rootKind]);
+        tags.push(['p', app.pubkey, RELAY_URL]);
+    }
+
+    const unsignedEvent = {
+        kind: KIND_COMMENT,
+        created_at: Math.floor(Date.now() / 1000),
+        tags,
+        content: trimmed
+    };
+
+    const signedEvent = await nostrSigner.signEvent(unsignedEvent);
+    await publishToRelays(signedEvent);
+    return signedEvent;
+}
+
+/**
+ * Parses a comment event (kind 1111)
+ * 
+ * Tag structure:
+ * - A: App address (32267:<pubkey>:<identifier>) - root anchor
+ * - K: App kind (32267)
+ * - P: App pubkey
+ * - v: Version/thread key
+ * - a/e: Parent item reference (app or comment)
+ * - k: Parent kind (32267 for top-level, 1111 for replies)
+ * - p: Parent author pubkey
+ * 
+ * @param {Object} event - Raw nostr event
+ * @returns {Object} Parsed comment object
+ */
+export function parseCommentEvent(event) {
+    const tagMap = {};
+    for (const tag of event.tags || []) {
+        if (Array.isArray(tag) && tag.length >= 2) {
+            const [k, v] = tag;
+            if (!tagMap[k]) tagMap[k] = v;
+        }
+    }
+
+    return {
+        id: event.id,
+        pubkey: event.pubkey,
+        npub: pubkeyToNpub(event.pubkey),
+        createdAt: event.created_at,
+        content: event.content || '',
+        contentHtml: renderMarkdown(event.content || ''),
+        // Root anchor (App)
+        appAddress: tagMap.A || '',
+        appKind: tagMap.K || '',
+        appPubkey: tagMap.P || '',
+        // Thread key (version) - NIP-22 requires `v`
+        version: tagMap.v || '',
+        // Parent reference
+        parentAddress: tagMap.a || '',
+        parentId: tagMap.e || null,
+        parentKind: tagMap.k || null,
+        parentPubkey: tagMap.p || null,
+        // Is this a reply?
+        isReply: String(tagMap.k || '') === String(KIND_COMMENT),
         fullEvent: event
     };
 }

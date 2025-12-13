@@ -4,8 +4,6 @@
 	import {
 		Package,
 		Calendar,
-		Tag,
-		ArrowLeft,
 		User,
 		Globe,
 		Github,
@@ -16,6 +14,7 @@
 		formatDate,
 		getAppSlug,
 		pubkeyToNpub,
+		fetchAppVersion,
 	} from "$lib/nostr.js";
 	import * as nip19 from "nostr-tools/nip19";
 
@@ -25,6 +24,19 @@
 	let error = null;
 	let pubkey = "";
 	let npub = "";
+	
+	// Store versions fetched from FileMetadata
+	let appVersions = new Map();
+	
+	// Fetch version for an app from FileMetadata
+	async function loadVersionForApp(app) {
+		if (!app?.id || appVersions.has(app.id)) return;
+		const version = await fetchAppVersion(app);
+		if (version) {
+			appVersions.set(app.id, version);
+			appVersions = appVersions; // Trigger reactivity
+		}
+	}
 
 	async function loadDeveloperData() {
 		try {
@@ -56,6 +68,9 @@
 			developer = developerProfile;
 			apps = developerApps;
 			loading = false;
+			
+			// Fetch versions for all apps
+			apps.forEach(app => loadVersionForApp(app));
 		} catch (err) {
 			console.error("Error fetching developer data:", err);
 			error = err.message;
@@ -111,30 +126,12 @@
 						Developer Not Found
 					</h3>
 					<p class="text-muted-foreground mb-4">{error}</p>
-					<a
-						href="/apps"
-						class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground w-full"
-					>
-						<ArrowLeft class="h-4 w-4 mr-2" />
-						Back to apps
-					</a>
 				</div>
 			</div>
 		</div>
 	</div>
 {:else}
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-		<!-- Breadcrumb -->
-		<div class="mb-8">
-            <a
-                href="/apps"
-                class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-            >
-				<ArrowLeft class="h-4 w-4 mr-1" />
-				Back to apps
-			</a>
-		</div>
-
 		<!-- Developer Header -->
 		<div class="bg-card border border-border rounded-lg p-8 mb-8">
 			<div class="flex items-center gap-6 mb-6">
@@ -238,20 +235,19 @@
 										</div>
 									{/if}
 									<div class="min-w-0 flex-1">
-										<h3
-											class="text-lg font-extra-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight"
-										>
-											{app.name}
-										</h3>
-										{#if app.version}
-											<div
-												class="flex items-center gap-1 text-sm text-muted-foreground mt-1"
-											>
-												<Tag class="h-3 w-3" />
-												<span>{app.version}</span>
-											</div>
-										{/if}
-									</div>
+									<h3
+										class="text-lg font-extra-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight"
+									>
+										{app.name}
+									</h3>
+									{#if appVersions.get(app.id)}
+										<div class="mt-0.5">
+											<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary text-white max-w-[140px]">
+												<span class="truncate">{appVersions.get(app.id).length > 20 ? appVersions.get(app.id).slice(0, 20) + '…' : appVersions.get(app.id)}</span>
+											</span>
+										</div>
+									{/if}
+								</div>
 								</div>
 
 								<!-- Description -->

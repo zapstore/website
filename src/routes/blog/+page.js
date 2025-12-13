@@ -1,3 +1,5 @@
+import { dev } from '$app/environment';
+
 export async function load() {
 	// Include top-level posts and folder `_index.md` files (one-level folders)
 	const modules = import.meta.glob('/src/content/blog/**/*.md');
@@ -30,8 +32,11 @@ export async function load() {
 			})
 	);
 
+	// Filter out draft posts in production
+	const filteredPosts = dev ? posts : posts.filter(post => !post.meta?.draft);
+
 	// Sort by date (newest first)
-	const sortedPosts = posts.sort((a, b) => {
+	const sortedPosts = filteredPosts.sort((a, b) => {
 		const ad = a.meta?.date ? new Date(a.meta.date) : 0;
 		const bd = b.meta?.date ? new Date(b.meta.date) : 0;
 		return bd - ad;

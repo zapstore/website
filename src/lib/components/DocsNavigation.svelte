@@ -42,7 +42,7 @@
 <!-- Mobile menu overlay -->
 {#if mobileMenuOpen}
     <div
-        class="lg:hidden fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
+        class="lg:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
         on:click={toggleMobileMenu}
         role="button"
         tabindex="0"
@@ -51,9 +51,20 @@
 {/if}
 
 <!-- Navigation sidebar -->
-<aside class="fixed lg:sticky top-16 left-0 z-40 h-screen lg:h-auto w-80 lg:w-auto bg-transparent border-r lg:border-r-0 border-border overflow-y-auto lg:translate-x-0 {mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}">
-    <nav class="p-6 lg:p-0 lg:sticky lg:top-24">
-        <ul class="space-y-2">
+<aside 
+    class="
+        fixed lg:sticky top-0 lg:top-24 left-0 z-40 
+        h-screen lg:h-auto w-72 lg:w-auto 
+        bg-background lg:bg-transparent 
+        border-r lg:border-r-0 border-border/50 
+        overflow-y-auto 
+        transition-transform duration-300 ease-out
+        {mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:translate-x-0
+    "
+>
+    <nav class="p-6 lg:p-0">
+        <ul class="space-y-1">
             {#each navigation as node}
                 <DocsNavNode node={node} {expanded} {toggle} />
             {/each}
@@ -66,5 +77,3 @@
         -webkit-overflow-scrolling: touch;
     }
 </style>
-
-

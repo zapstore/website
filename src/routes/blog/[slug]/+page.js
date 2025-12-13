@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 
 export async function load({ params }) {
 	const slug = params.slug;
@@ -15,6 +16,11 @@ export async function load({ params }) {
 		}
 
 		const post = await loader();
+
+		// Block access to draft posts in production
+		if (!dev && post.metadata?.draft) {
+			throw error(404, `Blog post not found: ${slug}`);
+		}
 
 		return {
 			content: post.default,

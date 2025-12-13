@@ -1,97 +1,76 @@
 <script>
-	import {
-		ArrowRight,
-		Package,
-		Zap,
-		Shield,
-		Users,
-		BarChart,
-		Heart,
-		FileText,
-		Lock,
-		BarChart3,
-		Search,
-		Network,
-	} from "lucide-svelte";
-	import FeatureCard from "$lib/components/FeatureCard.svelte";
+	import { ArrowRight, Zap, Lock, Globe, BarChart3 } from "lucide-svelte";
 	import MetricCard from "$lib/components/pro/MetricCard.svelte";
 	import PreviewChart from "$lib/components/pro/PreviewChart.svelte";
 	import CodeDemo from "$lib/components/CodeDemo.svelte";
 	import { assets } from "$app/paths";
 
-	let tab = "analytics";
-	let zapping = false;
-	function triggerZap() {
-		zapping = true;
-		setTimeout(() => (zapping = false), 1100);
-	}
 	const demo = {
-		analytics: {
-			chart: [4, 6, 5, 7, 9, 11, 10, 12, 14],
-			metrics: [
-				{
-					icon: BarChart3,
-					label: "Listings",
-					value: "12,438",
-					delta: { pct: 8, up: true },
-				},
-				{
-					icon: BarChart3,
-					label: "Installs",
-					value: "3,219",
-					delta: { pct: 3, up: true },
-				},
-				{
-					icon: BarChart3,
-					label: "Conversion rate",
-					value: "25.9%",
-					delta: { pct: 1.2, up: true },
-				},
-				{
-					icon: BarChart3,
-					label: "DAU",
-					value: "8,421",
-					delta: { pct: 5, up: true },
-				},
-			],
-		},
+		chart: [4, 6, 5, 7, 9, 11, 10, 12, 14],
+		metrics: [
+			{
+				icon: BarChart3,
+				label: "Listings",
+				value: "12,438",
+				delta: { pct: 8, up: true },
+			},
+			{
+				icon: BarChart3,
+				label: "Installs",
+				value: "3,219",
+				delta: { pct: 3, up: true },
+			},
+			{
+				icon: BarChart3,
+				label: "Conversion",
+				value: "25.9%",
+				delta: { pct: 1.2, up: true },
+			},
+			{
+				icon: BarChart3,
+				label: "DAU",
+				value: "8,421",
+				delta: { pct: 5, up: true },
+			},
+		],
 	};
 </script>
 
 <svelte:head>
-	<title>Developers - Zapstore</title>
+	<title>Developers — Zapstore</title>
+	<meta name="description" content="Publish without permission" />
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="relative overflow-hidden bg-brand-gradient-v">
-	<div class="absolute inset-0 bg-brand-overlay-soft"></div>
-	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-		<div
-			class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-		>
-			<!-- Left: Heading and subheading -->
-			<div class="max-w-2xl text-center lg:text-left">
+<section class="relative overflow-hidden py-16 lg:py-20">
+	<div
+		class="absolute top-0 right-1/4 w-[500px] h-[400px] gradient-orb bg-primary/15"
+	></div>
+
+	<div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+			<!-- Left: Text -->
+			<div class="max-w-xl">
 				<h1
-					class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6"
+					class="text-display-lg text-4xl sm:text-5xl lg:text-6xl mb-6"
 				>
-					Turn users into supporters
+					Publish <span class="text-primary">without permission</span>
 				</h1>
-				<p class="text-lg sm:text-xl text-muted-foreground mb-6">
-					Distribute your apps directly to users and monetize instantly.
+
+				<p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+					No arbitrary review rules, no permissioned accounts, no 30% cuts — sign your app, ship it to
+					users and keep all of your revenue.
 				</p>
-				<p class="text-lg sm:text-xl text-muted-foreground mb-6">
-					No arbitrary rules, no platform fees or revenue cuts, no KYC. Your
-					app, your community, your sats.
-				</p>
-				<div
-					class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-				>
+
+				<div class="flex flex-col sm:flex-row gap-4">
 					<a
 						href="/docs/publish"
-						class="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						class="group inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25"
 					>
-						Publish your app
-						<ArrowRight class="ml-2 h-4 w-4" />
+						Start publishing
+						<ArrowRight
+							class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+						/>
 					</a>
 				</div>
 			</div>
@@ -99,95 +78,111 @@
 			<!-- Right: Image -->
 			<div class="relative flex justify-center lg:justify-end">
 				<div class="relative">
+					<!-- Ambient glow -->
 					<div
-						class="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-purple-500/10 rounded-3xl blur-3xl scale-110"
+						class="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-primary/10 rounded-3xl blur-3xl scale-110"
 					></div>
-					<div
-						class="relative transform hover:scale-105 transition-transform duration-500 ease-out"
-					>
+
+					<!-- Decorative frame -->
+					<div class="relative p-4">
+						<!-- Corner accents -->
+						<div
+							class="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-amber-500/40 rounded-tl-2xl"
+						></div>
+						<div
+							class="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-primary/40 rounded-tr-2xl"
+						></div>
+						<div
+							class="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-primary/40 rounded-bl-2xl"
+						></div>
+						<div
+							class="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-amber-500/40 rounded-br-2xl"
+						></div>
+
+						<!-- Floating zap icons -->
+						<div
+							class="absolute -top-3 -right-3 w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center"
+						>
+							<Zap class="w-4 h-4 text-amber-500" />
+						</div>
+						<div
+							class="absolute -bottom-3 -left-3 w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center"
+						>
+							<Zap class="w-4 h-4 text-primary" />
+						</div>
+
+						<!-- Image -->
 						<img
 							src={`${assets}/images/zaps.png`}
 							alt="Zaps on Zapstore"
-							class="relative z-10 max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg w-full h-auto drop-shadow-2xl"
+							class="relative z-10 max-w-xs sm:max-w-sm lg:max-w-md drop-shadow-2xl"
 						/>
-						<div
-							class="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/20 rounded-2xl transform translate-y-2 blur-lg opacity-60"
-						></div>
 					</div>
-					<div
-						class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-full blur-xl opacity-60 animate-pulse"
-					></div>
-					<div
-						class="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-tr from-blue-500/20 to-primary/20 rounded-full blur-2xl opacity-40"
-					></div>
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section class="py-20 border-t border-white/10">
+<!-- Integration Section -->
+<section class="py-16 lg:py-20 border-t border-border/50">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-			<div>
-				<h2 class="text-3xl sm:text-4xl font-extrabold mb-6 text-white">
-					Integrate in minutes
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+			<div class="max-w-xl">
+				<h2 class="text-display text-3xl sm:text-4xl mb-6">
+					Publish in minutes
 				</h2>
-				<p class="text-lg text-gray-400 mb-6 leading-relaxed">
-					Our Zapstore CLI tool makes it easy to publish apps to
-					relays&mdash;whether they are locally or remotely hosted, including
-					rich metadata that makes your app more discoverable.
+				<p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+					The CLI extracts metadata from your APK and publishes to relays. One
+					command and you're live.
 				</p>
-				<ul class="space-y-3 mb-8">
-					<li class="flex items-start">
+
+				<ul class="space-y-4 mb-8">
+					<li class="flex items-start gap-3">
 						<div
-							class="h-6 w-6 rounded-full border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5"
+							class="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5"
 						>
-							<div class="h-2 w-2 rounded-full bg-primary"></div>
+							<div class="w-2 h-2 rounded-full bg-primary"></div>
 						</div>
-						<span class="ml-3 text-gray-300"
-							>Extract metadata from APK and remote sources</span
+						<span class="text-muted-foreground"
+							>Auto-extracts icons, descriptions, and screenshots</span
 						>
 					</li>
-					<li class="flex items-start">
+					<li class="flex items-start gap-3">
 						<div
-							class="h-6 w-6 rounded-full border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5"
+							class="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5"
 						>
-							<div class="h-2 w-2 rounded-full bg-primary"></div>
+							<div class="w-2 h-2 rounded-full bg-primary"></div>
 						</div>
-						<span class="ml-3 text-gray-300"
-							>Supports nsec, NIP-07 and bunker URLs for signing</span
+						<span class="text-muted-foreground"
+							>Sign with your Nostr key (nsec, NIP-07, or bunker)</span
 						>
 					</li>
-					<li class="flex items-start">
+					<li class="flex items-start gap-3">
 						<div
-							class="h-6 w-6 rounded-full border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5"
+							class="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5"
 						>
-							<div class="h-2 w-2 rounded-full bg-primary"></div>
+							<div class="w-2 h-2 rounded-full bg-primary"></div>
 						</div>
-						<span class="ml-3 text-gray-300"
-							>Publish and start receiving zaps in just a few lines of code</span
+						<span class="text-muted-foreground"
+							>Your app is live and discoverable immediately</span
 						>
 					</li>
 				</ul>
 
-				<!-- CTA Buttons -->
 				<div class="flex flex-col sm:flex-row gap-4">
 					<a
 						href="/docs/publish"
-						class="inline-flex items-center justify-center rounded-md bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						class="group inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25"
 					>
-						View documentation
-						<ArrowRight class="ml-2 h-5 w-5" />
-					</a>
-					<a
-						href="/docs/faq"
-						class="inline-flex items-center justify-center rounded-md border border-white/10 px-8 py-4 text-base font-medium text-white/90 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
-					>
-						FAQ
+						Read the docs
+						<ArrowRight
+							class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+						/>
 					</a>
 				</div>
 			</div>
+
 			<div>
 				<CodeDemo />
 			</div>
@@ -195,234 +190,85 @@
 	</div>
 </section>
 
-<section class="py-24 border-t border-border/40">
+<!-- Value Props Section -->
+<section class="py-16 lg:py-20 border-t border-border/50">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-		<div class="max-w-3xl mx-auto text-center mb-12">
-			<h2 class="text-3xl sm:text-4xl font-extra-bold mb-4">
-				Global distribution
-			</h2>
-			<p class="text-lg text-muted-foreground">
-				One submission reaches users on any Android device — borderless and
-				location‑agnostic, no additional stores or approvals.
-			</p>
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-			<div class="rounded-xl border border-white/10 bg-white/5 p-6 text-left">
-				<h3 class="text-white font-semibold mb-2">
-					Your Privacy. Your Identity.
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+			<!-- No Gatekeepers -->
+			<div
+				class="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 card-glow"
+			>
+				<div
+					class="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6"
+				>
+					<Globe class="h-6 w-6 text-primary" />
+				</div>
+				<h3 class="text-lg font-semibold text-foreground mb-3">
+					No gatekeepers, no KYC
 				</h3>
-				<p class="text-sm text-muted-foreground">
-					Zapstore uses cryptographic signatures — not identity checks — so
-					developers stay anonymous by default while users remain secure.
+				<p class="text-sm text-muted-foreground leading-relaxed">
+					Publish directly to relays. Your app goes live when you say so — no
+					approval queue, no waiting.
 				</p>
-				<div class="mt-4 flex items-center justify-center">
-					<svg
-						viewBox="0 0 120 120"
-						width="120"
-						height="120"
-						aria-hidden="true"
-					>
-						<defs>
-							<radialGradient id="badgeGlow" cx="50%" cy="50%" r="60%">
-								<stop offset="0%" stop-color="rgba(99,102,241,0.18)" />
-								<stop offset="100%" stop-color="rgba(0,0,0,0)" />
-							</radialGradient>
-						</defs>
-						<circle cx="60" cy="60" r="50" fill="url(#badgeGlow)" />
-						<g
-							stroke="hsl(var(--muted-foreground))"
-							stroke-width="2"
-							fill="none"
-							stroke-linecap="round"
-						>
-							<!-- Lock body -->
-							<rect
-								x="40"
-								y="55"
-								width="40"
-								height="30"
-								rx="6"
-								fill="hsl(var(--muted)/0.25)"
-								stroke="hsl(var(--muted-foreground))"
-							/>
-							<!-- Shackle (animated close) -->
-							<g
-								style="transform-origin: 60px 52px; animation: lock-drop 1.2s ease-out infinite;"
-							>
-								<path d="M48 55 v-8 a12 12 0 0 1 24 0 v8" />
-							</g>
-						</g>
-					</svg>
-				</div>
 			</div>
-			<div class="rounded-xl border border-white/10 bg-white/5 p-6 text-left">
-				<h3 class="text-white font-semibold mb-2">No borders</h3>
-				<p class="text-sm text-muted-foreground">
-					Nostr relays propagate your releases globally — not tied to a country
-					or store region.
-				</p>
-				<!-- Minimal world distribution visual -->
-				<div class="mt-4 relative h-36">
-					<svg
-						viewBox="0 0 400 140"
-						class="absolute inset-0 w-full h-full"
-						preserveAspectRatio="none"
-						aria-hidden="true"
-					>
-						<defs>
-							<pattern
-								id="gridLines"
-								width="40"
-								height="40"
-								patternUnits="userSpaceOnUse"
-							>
-								<path
-									d="M 40 0 L 0 0 0 40"
-									fill="none"
-									stroke="hsl(var(--muted-foreground))"
-									stroke-opacity="0.18"
-									stroke-width="0.5"
-								/>
-							</pattern>
-							<radialGradient id="mapGlow" cx="60%" cy="40%" r="70%">
-								<stop offset="0%" stop-color="rgba(99,102,241,0.18)" />
-								<stop offset="100%" stop-color="rgba(0,0,0,0)" />
-							</radialGradient>
-						</defs>
-						<rect width="100%" height="100%" fill="url(#gridLines)" />
-						<rect width="100%" height="100%" fill="url(#mapGlow)" />
 
-						<!-- Arcs (animated stroke dash) -->
-						<path
-							d="M60,95 C140,20 220,20 300,85"
-							fill="none"
-							stroke="hsl(var(--muted-foreground))"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							style="stroke-dasharray: 240; stroke-dashoffset: 240; animation: arc-dash 2.6s ease-in-out infinite;"
-						/>
-						<path
-							d="M160,60 C210,10 260,15 340,50"
-							fill="none"
-							stroke="hsl(var(--muted-foreground))"
-							stroke-width="1.4"
-							stroke-linecap="round"
-							style="stroke-dasharray: 200; stroke-dashoffset: 200; animation: arc-dash 3.2s ease-in-out infinite; animation-delay: .3s;"
-						/>
-						<path
-							d="M80,80 C170,40 230,60 320,40"
-							fill="none"
-							stroke="hsl(var(--muted-foreground))"
-							stroke-width="1.2"
-							stroke-linecap="round"
-							style="stroke-dasharray: 200; stroke-dashoffset: 200; animation: arc-dash 2.2s ease-in-out infinite; animation-delay: .6s;"
-						/>
-
-						<!-- Nodes -->
-						<g fill="hsl(var(--muted-foreground))">
-							<circle
-								cx="60"
-								cy="95"
-								r="3"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="160"
-								cy="60"
-								r="2.5"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="300"
-								cy="85"
-								r="3"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="340"
-								cy="50"
-								r="2.5"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="120"
-								cy="70"
-								r="2.2"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="210"
-								cy="40"
-								r="2.2"
-								fill="hsl(var(--muted-foreground))"
-							/>
-							<circle
-								cx="240"
-								cy="75"
-								r="2.2"
-								fill="hsl(var(--muted-foreground))"
-							/>
-						</g>
-					</svg>
+			<!-- Keep 100% -->
+			<div
+				class="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 card-glow"
+			>
+				<div
+					class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6"
+				>
+					<Zap class="h-6 w-6 text-amber-500" />
 				</div>
+				<h3 class="text-lg font-semibold text-foreground mb-3">Keep 100%</h3>
+				<p class="text-sm text-muted-foreground leading-relaxed">
+					Receive bitcoin zaps directly from users. No platform cut, no payment
+					processing fees.
+				</p>
 			</div>
-			<div class="rounded-xl border border-white/10 bg-white/5 p-6 text-left">
-				<h3 class="text-white font-semibold mb-2">Grow Your Audience</h3>
-				<p class="text-sm text-muted-foreground">
-					Leverage social discovery to reach new users. Engage with your
-					community and receive direct feedback and support.
-				</p>
-				<div class="mt-4 flex items-center justify-center">
-					<svg
-						viewBox="0 0 160 100"
-						width="160"
-						height="100"
-						aria-hidden="true"
-					>
-						<defs>
-							<radialGradient id="gateGlow" cx="50%" cy="50%" r="60%">
-								<stop offset="0%" stop-color="rgba(99,102,241,0.16)" />
-								<stop offset="100%" stop-color="rgba(0,0,0,0)" />
-							</radialGradient>
-						</defs>
-						<circle cx="80" cy="50" r="46" fill="url(#gateGlow)" />
-						<!-- Pivot -->
-						<circle cx="45" cy="68" r="6" fill="hsl(var(--muted-foreground))" />
-						<!-- Barrier arm (lifts up) -->
-						<rect
-							x="51"
-							y="66"
-							width="70"
-							height="4"
-							rx="2"
-							fill="hsl(var(--muted-foreground))"
-							style="transform-origin: 51px 68px; animation: gate-lift 1.6s ease-in-out infinite;"
-						/>
-					</svg>
+
+			<!-- Build Community -->
+			<div
+				class="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 card-glow"
+			>
+				<div
+					class="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6"
+				>
+					<Lock class="h-6 w-6 text-primary" />
 				</div>
+				<h3 class="text-lg font-semibold text-foreground mb-3">
+					Build your community
+				</h3>
+				<p class="text-sm text-muted-foreground leading-relaxed">
+					Engage users directly on Nostr. Get feedback, announce updates, and
+					grow your audience organically.
+				</p>
 			</div>
 		</div>
 	</div>
 </section>
 
-<!-- Premium (Coming soon): Analytics -->
-<section class="py-24 border-t border-white/10 bg-brand-gradient-v">
+<!-- Analytics Preview Section -->
+<section class="py-16 lg:py-20 border-t border-border/50">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-		<div class="text-center mb-10">
+		<div class="text-center mb-12">
 			<div
-				class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 mb-3"
+				class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/50 bg-card/50 text-sm text-muted-foreground mb-4"
 			>
-				Premium (Coming soon)
+				Pro &bull; Coming soon
 			</div>
-			<h2 class="text-3xl sm:text-4xl font-extrabold text-white">Analytics</h2>
-			<p class="text-lg text-gray-400 mt-4">
-				Preview of the developer dashboard. Aggregated, privacy‑preserving data.
+			<h2 class="text-display text-3xl sm:text-4xl mb-4">
+				Developer analytics
+			</h2>
+			<p class="text-lg text-muted-foreground max-w-xl mx-auto">
+				Aggregated, privacy-preserving insights into your app's performance.
 			</p>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				{#each demo[tab].metrics as m}
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+			<div class="grid grid-cols-2 gap-4">
+				{#each demo.metrics as m}
 					<MetricCard
 						icon={m.icon}
 						label={m.label}
@@ -431,15 +277,94 @@
 					/>
 				{/each}
 			</div>
-			<div class="rounded-xl border border-white/10 bg-white/5 p-6">
-				<h3 class="text-white font-semibold mb-3">
-					{tab === "analytics"
-						? "Installs trend"
-						: tab === "aso"
-							? "Keyword visibility"
-							: "Relay health"}
-				</h3>
-				<PreviewChart data={demo[tab].chart} />
+			<div
+				class="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-6"
+			>
+				<h3 class="text-foreground font-semibold mb-4">Installs trend</h3>
+				<PreviewChart data={demo.chart} />
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ReachKit Callout Section -->
+<section class="py-16 lg:py-20 border-t border-border/50">
+	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="relative max-w-4xl mx-auto">
+			<!-- Background glow -->
+			<div
+				class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/10 via-card to-card border border-amber-500/20 overflow-hidden"
+			>
+				<div
+					class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"
+				></div>
+			</div>
+
+			<!-- Content -->
+			<div class="relative px-8 py-12 lg:px-16 lg:py-16">
+				<div class="flex flex-col lg:flex-row lg:items-center gap-8">
+					<div class="flex-1">
+						<div
+							class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-sm text-amber-400 mb-4"
+						>
+							<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"
+							></span>
+							Coming Soon
+						</div>
+						<h2
+							class="text-display text-3xl sm:text-4xl lg:text-[2.75rem] mb-4"
+						>
+							Need to distribute everywhere?
+						</h2>
+						<p class="text-muted-foreground mb-6 max-w-xl leading-relaxed">
+							<strong class="text-foreground">ReachKit</strong> uses AI to
+							predict app store rejections before you submit. Validate once,
+							ship to
+							<strong class="text-foreground">every major mobile store</strong> —
+							App Store, Google Play, F-Droid, Zapstore, and more.
+						</p>
+						<a
+							href="/developers/reachkit"
+							class="group inline-flex items-center gap-2 text-amber-400 font-medium hover:text-amber-300 transition-colors"
+						>
+							Learn about ReachKit
+							<ArrowRight
+								class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+							/>
+						</a>
+					</div>
+
+					<div class="lg:w-72 flex-shrink-0">
+						<!-- ReachKit Logo -->
+						<div
+							class="w-20 h-20 mx-auto lg:mx-0 rounded-2xl bg-card border border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-500/10"
+						>
+							<svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+								<defs>
+									<linearGradient
+										id="callout-gradient"
+										x1="0%"
+										y1="0%"
+										x2="100%"
+										y2="100%"
+									>
+										<stop offset="0%" style="stop-color:#FFB800" />
+										<stop offset="100%" style="stop-color:#FF6B35" />
+									</linearGradient>
+								</defs>
+								<path
+									d="M4 16L12 8L20 16L12 24L4 16Z"
+									fill="url(#callout-gradient)"
+								/>
+								<path
+									d="M12 16L20 8L28 16L20 24L12 16Z"
+									fill="url(#callout-gradient)"
+									opacity="0.6"
+								/>
+							</svg>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -5,21 +5,19 @@
   export let delta = null; // { pct: number, up: boolean }
 </script>
 
-<div class="rounded-lg border border-white/10 bg-white/5 p-4">
-  <div class="flex items-center gap-3 mb-2">
-    <div class="h-9 w-9 rounded-md bg-white/10 flex items-center justify-center text-white/90">
+<div class="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-5 card-glow">
+  <div class="flex items-center gap-3 mb-3">
+    <div class="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
       <svelte:component this={icon} class="h-5 w-5" />
     </div>
-    <span class="text-sm text-white/70">{label}</span>
+    <span class="text-sm text-muted-foreground">{label}</span>
   </div>
   <div class="flex items-baseline gap-2">
-    <span class="text-2xl font-semibold text-white">{value}</span>
+    <span class="text-2xl font-semibold text-foreground">{value}</span>
     {#if delta}
-      <span class="{delta.up ? 'text-emerald-400' : 'text-rose-400'} text-xs">
-        {delta.up ? '▲' : '▼'} {delta.pct}%
+      <span class="{delta.up ? 'text-emerald-400' : 'text-rose-400'} text-xs font-medium">
+        {delta.up ? '↑' : '↓'} {delta.pct}%
       </span>
     {/if}
   </div>
 </div>
-
-

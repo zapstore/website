@@ -1,5 +1,6 @@
 <script>
   import { page } from '$app/stores';
+  import { ChevronRight } from 'lucide-svelte';
 
   export let node;
   export let expanded = {};
@@ -23,29 +24,32 @@
 
 <li>
   {#if isFolder}
-    <div class="flex items-center justify-between w-full text-left text-sm mb-1 px-3 py-1 rounded-md transition-colors hover:bg-gray-800/70">
+    <div class="flex items-center justify-between w-full text-left text-sm mb-1">
       {#if node.href}
-        <a href={node.href} class="transition-colors {isActive(node.href) || isAncestorActive(node.href) ? 'text-white font-semibold' : 'text-gray-500 hover:text-white'}">
+        <a 
+          href={node.href} 
+          class="flex-1 px-3 py-1.5 rounded-lg transition-colors {isActive(node.href) ? 'bg-primary/10 text-foreground font-medium' : isAncestorActive(node.href) ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-card'}"
+        >
           {node.title}
         </a>
       {:else}
-        <span class="{isAncestorActive(node.id) ? 'text-white font-semibold' : 'text-gray-500'}">{node.title}</span>
+        <span class="flex-1 px-3 py-1.5 {isAncestorActive(node.id) ? 'text-foreground font-medium' : 'text-muted-foreground'}">
+          {node.title}
+        </span>
       {/if}
       <button
         type="button"
-        class="text-xs rounded ml-2 shrink-0"
+        class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
         on:click={() => toggle(node.id)}
         aria-expanded={!!expanded[node.id]}
         aria-controls={`section-${node.id}`}
         aria-label={expanded[node.id] ? 'Collapse section' : 'Expand section'}
       >
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-[18px] w-[18px] {expanded[node.id] ? 'rotate-90' : ''}" style="transition: transform 150ms; transform-origin: center;">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
+        <ChevronRight class="h-4 w-4 transition-transform duration-200 {expanded[node.id] ? 'rotate-90' : ''}" />
       </button>
     </div>
     {#if expanded[node.id]}
-      <ul id={`section-${node.id}`} class="ml-4 space-y-1">
+      <ul id={`section-${node.id}`} class="ml-3 pl-3 border-l border-border/50 space-y-1 mt-1">
         {#each node.children as child}
           <svelte:self node={child} {expanded} {toggle} />
         {/each}
@@ -55,13 +59,10 @@
     {#if node.href}
       <a
         href={node.href}
-        class="block text-sm px-3 py-1 rounded-md transition-colors {isActive(node.href) ? 'bg-gray-800 text-white font-semibold' : 'text-gray-500 hover:text-white hover:bg-gray-800/70'}"
-      >{node.title}</a>
+        class="block text-sm px-3 py-1.5 rounded-lg transition-colors {isActive(node.href) ? 'bg-primary/10 text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-card'}"
+      >
+        {node.title}
+      </a>
     {/if}
   {/if}
 </li>
-
-<style>
-</style>
-
-

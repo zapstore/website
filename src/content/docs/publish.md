@@ -40,7 +40,7 @@ assets:
   - output/.*.apk
 ```
 
-**Publishing to `relay.zapstore.dev` requires being whitelisted**. Contact us!
+**Anyone with an active npub can publish their apps to `relay.zapstore.dev` without permission**. If you run into issues contact us!
 
 For more options, keep reading.
 

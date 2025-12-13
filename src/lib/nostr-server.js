@@ -276,6 +276,17 @@ function parseAppEventServer(event) {
 		slug = `${npub}-${tagMap.d || ''}`;
 	}
 
+	// Serialize the event to strip any symbolic keys for SvelteKit SSR
+	const serializedEvent = JSON.parse(JSON.stringify({
+		id: event.id,
+		pubkey: event.pubkey,
+		created_at: event.created_at,
+		kind: event.kind,
+		tags: event.tags,
+		content: event.content,
+		sig: event.sig
+	}));
+
 	return {
 		id: event.id,
 		pubkey: event.pubkey,
@@ -286,7 +297,6 @@ function parseAppEventServer(event) {
 		descriptionHtml: renderMarkdown(description),
 		icon,
 		images,
-		version: content.version || tagMap.version || '',
 		url: content.url || content.website || tagMap.url || '',
 		downloadUrl: content.downloadUrl || content.download || tagMap.download || '',
 		repository: content.repository || content.repo || content.source || tagMap.repository || '',
@@ -295,7 +305,8 @@ function parseAppEventServer(event) {
 		license,
 		developer: content.developer || content.publisher || content.author || tagMap.developer || '',
 		platform: content.platform || tagMap.platform || '',
-		slug
+		slug,
+		fullEvent: serializedEvent // Add the complete nostr event for Raw Event Data
 	};
 }
 

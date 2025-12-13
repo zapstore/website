@@ -2,16 +2,15 @@
 	export let data;
 	import { formatDisplayDate } from "$lib/date.js";
 
-	// Extract metadata
 	$: title = data.metadata?.title || "Blog Post";
 	$: description = data.metadata?.description || "";
 	$: author = data.metadata?.author || "Zapstore";
 	$: date = data.metadata?.date || "";
-	$: readTime = data.metadata?.readTime || "5 min read";
+	$: draft = data.metadata?.draft || false;
 </script>
 
 <svelte:head>
-	<title>{title} - Zapstore Blog</title>
+	<title>{title} — Zapstore Blog</title>
 	<meta name="description" content={description} />
 	<meta name="author" content={author} />
 	{#if date}
@@ -19,19 +18,27 @@
 	{/if}
 </svelte:head>
 
-<article class="prose prose-slate dark:prose-invert prose-lg max-w-none">
+<article>
 	<!-- Article header -->
-	<header class="mb-8 not-prose">
-		<h1 class="text-4xl font-bold tracking-tight mb-4">{title}</h1>
-		<div class="flex items-center gap-4 text-muted-foreground text-sm">
+	<header class="mb-12">
+		<div class="flex items-center gap-3 text-sm text-muted-foreground mb-4">
 			{#if date}
 				<time datetime={date}>{formatDisplayDate(date)}</time>
 			{/if}
+			{#if draft}
+				<span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-medium">
+					Draft
+				</span>
+			{/if}
 		</div>
+		<h1 class="text-display-lg text-3xl sm:text-4xl lg:text-5xl mb-4">{title}</h1>
+		{#if description}
+			<p class="text-lg text-muted-foreground">{description}</p>
+		{/if}
 	</header>
 
 	<!-- Article content -->
-	<div class="prose-content">
+	<div class="prose">
 		<svelte:component this={data.content} />
 	</div>
 </article>

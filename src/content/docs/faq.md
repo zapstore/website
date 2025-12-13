@@ -3,46 +3,83 @@ title: FAQ
 weight: 5
 ---
 
-## What is Zapstore?
+## General
 
-Zapstore is a permissionless app store that allows users to verify apps, devs to sign their own apps, and users to discover new & exciting apps via their social graph! Zap Store makes it easy for enthusiasts & users to reward their app's dev via micropayments, and enables the dev to build a commuity around their app. 
+### What is Zapstore?
 
+Zapstore is an open app store for Android. Apps are discovered through your social network, cryptographically verified, and developers can receive bitcoin payments directly from users.
 
-## Devs
+### How is Zapstore different from Google Play?
 
-### How is Zapstore different from Google Play store?
-Zapstore's mission is to enable millions of software devs to turn their hobby into their calling. Zapstore helps app devs monetize and build a community of supporters around their passion. 
+Zapstore has no central gatekeeper. Anyone can publish an app without approval. Apps are signed by developers and verified by users, rather than relying on a corporation to decide what's trustworthy.
 
-Zapstore aligns incentives with devs success - if app devs succeeds, then Zapstore succeeds. 
+There are no ads, no tracking, and no 30% platform fee. Developers keep 100% of what they earn.
 
-Zapstore abstains from ads.
+### Is Zapstore open source?
 
-### What does Zapstore provide technically that Google Play does not?
+Yes. The Android app, CLI, and all related tools are fully open source. You can review the code on [GitHub](https://github.com/zapstore/zapstore).
 
-Zapstore provides a CLI for signing, and uploading releases. App customers are able to verify developer's release signature.
+---
 
-Zapstore builds on permissionless, open, and neutral micropayment protocol in the [Lightning Network](https://lightning.network/). No email, or phone number is required to send zaps to app devs via Zapstore.
+## For Users
 
-Zapstore's social layer is powered by the permissionless, open, and neutral [nostr protocol](https://fiatjaf.com/nostr.html). Anyone can create, or utilize an existing nostr identity. 
+### How do I install Zapstore?
 
-### What does Zapstore use for the developer, user, and web-of-trust identities?
-Zapstore builds on the open, permissionless, and social [nostr protocol](https://github.com/nostr-protocol/nostr).
+Download the APK from [zapstore.dev](/) and install it on your Android device (10+, arm64). You may need to allow installation from unknown sources in your settings.
 
-### What is the web-of-trust DVM?
-Web-of-trust data vending machine (DVM) allows querying one or more services that return social proof for a particular app.
+### How does social discovery work?
 
-### How can Zapstore help app devs make money?
-App customers will be able to send micropayments to devs. Zapstore will prompt app customers to zap devs upon app updates.
+Zapstore connects to your Nostr social graph. When browsing apps, you can see which apps are used and recommended by people you follow. This helps surface quality apps without relying on algorithms or paid rankings.
 
-### Interesting. How else will Zapstore plan to further serve app developers?
-Zapstore will enable app developers to build a community of app supporters around their app. Zapstore will take care of the communication & payment infrastructure, and integrations, so that the app dev can focus on what they do best - building their app!
+### Are apps on Zapstore safe?
 
-## App Customers
+Every app on Zapstore is cryptographically signed by its developer. Signatures are verified before installation. This means you always know exactly who published an app.
 
-### What is different between Google Play Store and Zapstore?
-With Zapstore you can see your friends' app curations! 
+That said, Zapstore is permissionless — anyone can publish. Use the same judgment you would with any software: check the developer's reputation, look at community feedback, and start with apps from developers you trust.
 
-You can send micropayments to your favorite app's developers.
+### How do I support developers?
 
-To follow, Zapstore will enable app devs to opt into Zapstore app communities, where you can support your favorite app's dev, and provide them feedback.
+You can send bitcoin directly to developers using Lightning Network zaps. This happens through your Nostr identity — no account or payment processor needed.
 
+---
+
+## For Developers
+
+### How do I publish an app?
+
+Use the Zapstore CLI to publish your APK. The CLI extracts metadata, signs the release with your Nostr key, and publishes to relays. See the [publishing guide](/docs/publish) for step-by-step instructions.
+
+### Do I need to pay or register?
+
+No. Publishing is free and requires no registration. You just need a Nostr keypair to sign your releases.
+
+### How do I receive payments?
+
+Add a Lightning address to your Nostr profile. Users can zap you directly through the Zapstore app. You receive 100% of every payment — no platform cut.
+
+### What signing methods are supported?
+
+The CLI supports:
+- **nsec** — Your raw private key
+- **NIP-07** — Browser extension signing
+- **Bunker URLs** — Remote signing via Nostr Connect
+
+---
+
+## Technical
+
+### What is Nostr?
+
+Nostr is an open protocol for decentralized social networking. Zapstore uses Nostr for identity (developer and user keys), app metadata distribution (relays), and social features (follows, recommendations, zaps).
+
+Learn more at [nostr.com](https://nostr.com).
+
+### How does verification work?
+
+Developers sign app releases with their Nostr private key. The signature is published alongside the APK metadata. When you install an app, Zapstore verifies that the signature matches the developer's public key.
+
+This proves the app came from the claimed developer and hasn't been tampered with.
+
+### What relays does Zapstore use?
+
+Zapstore publishes to and reads from a set of default relays, but you can configure your own. The decentralized relay network means there's no single point of failure.

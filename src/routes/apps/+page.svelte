@@ -1,13 +1,13 @@
 <script>
+	import { onMount } from "svelte";
 	import {
 		Package,
 		Download,
 		ExternalLink,
 		User,
 		Calendar,
-		Tag,
 	} from "lucide-svelte";
-	import { fetchApps, formatDate, getAppSlug } from "$lib/nostr.js";
+	import { fetchApps, formatDate, getAppSlug, getDiscoverPageState, setDiscoverPageState, cacheApp, fetchAppVersion } from "$lib/nostr.js";
 	import ProfileInfo from "$lib/components/ProfileInfo.svelte";
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
@@ -15,16 +15,43 @@
 	// Receive server-rendered data
 	export let data;
 	
-	let apps = data.apps;
+	// Check if we have cached state from previous visit
+	const cachedState = getDiscoverPageState();
+	const hasCachedState = cachedState.apps.length > 0 && !data.initialQuery;
+	
+	let apps = hasCachedState ? cachedState.apps : data.apps;
 	let loading = data.loading;
 	let error = data.error || null;
 	let loadingMore = false;
-	let hasMore = data.hasMore;
-	let query = data.initialQuery || "";
-	let debouncedQuery = data.initialQuery || "";
+	let hasMore = hasCachedState ? cachedState.hasMore : data.hasMore;
+	let query = data.initialQuery || cachedState.query || "";
+	let debouncedQuery = data.initialQuery || cachedState.query || "";
 	let canSearch = false;
 	$: canSearch = query.trim().length > 0;
 	const PAGE_SIZE = 12;
+	
+	// Store versions fetched from FileMetadata
+	let appVersions = new Map();
+	
+	// Fetch version for an app from FileMetadata
+	async function loadVersionForApp(app) {
+		if (!app?.id || appVersions.has(app.id)) return;
+		const version = await fetchAppVersion(app);
+		if (version) {
+			appVersions.set(app.id, version);
+			appVersions = appVersions; // Trigger reactivity
+		}
+	}
+	
+	// Cache apps for instant loading in detail page
+	$: {
+		apps.forEach(app => {
+			cacheApp(app);
+			loadVersionForApp(app);
+		});
+		// Save state for when user navigates back
+		setDiscoverPageState({ apps, hasMore, query: debouncedQuery, expanded: apps.length > PAGE_SIZE });
+	}
 
 	async function loadApps(reset = true) {
 		try {
@@ -136,32 +163,14 @@
 </script>
 
 <svelte:head>
-	<title>Apps - Zapstore</title>
+	<title>Apps — Zapstore</title>
 	<meta
 		name="description"
-		content="Discover trusted applications in the open marketplace. Browse the latest apps verified through the nostr protocol."
+		content="Browse apps on Zapstore"
 	/>
 </svelte:head>
 
-<!-- Hero Section -->
-<section
-	class="relative overflow-hidden border-b border-border/40 bg-brand-gradient-v"
->
-	<div class="absolute inset-0 bg-brand-overlay-soft"></div>
-	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
-		<div class="relative z-10 max-w-4xl mx-auto text-center">
-			<h1
-				class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6"
-			>
-				Discover <span class="gradient-text">Apps</span>
-			</h1>
-			<p class="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-				Browse the latest releases from our relay. Every app is
-				cryptographically signed and comes from trusted sources.
-			</p>
-		</div>
-	</div>
-</section>
+<!-- Hero Section --
 
 <!-- Search + Apps Grid -->
 <section class="pt-2 pb-4">
@@ -229,6 +238,7 @@
 				</div>
 			</div>
 		{:else}
+			<p class="text-sm text-muted-foreground mb-4">Current catalog relays: <code class="font-mono bg-muted px-1.5 py-0.5 rounded">relay.zapstore.dev</code></p>
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
 			>
@@ -238,35 +248,34 @@
 					>
 						<a href={getAppUrl(app)} class="block p-6">
 							<!-- App Icon and Name -->
-							<div class="flex items-center gap-4 mb-4">
+							<div class="flex items-start gap-4 mb-4">
 								{#if app.icon}
 									<img
 										src={app.icon}
 										alt={app.name}
-										class="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+										class="w-14 h-14 rounded-lg object-cover flex-shrink-0"
 										loading="lazy"
 									/>
 								{:else}
 									<div
-										class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"
+										class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"
 									>
-										<Package class="h-6 w-6 text-primary" />
+										<Package class="h-7 w-7 text-primary" />
 									</div>
 								{/if}
 								<div class="min-w-0 flex-1">
-									<h3
-										class="text-2xl font-extra-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight"
-									>
-										{app.name}
-									</h3>
-									{#if app.version}
-										<div
-											class="flex items-center gap-1 text-sm text-muted-foreground mt-1"
-										>
-											<Tag class="h-3 w-3" />
-											<span>{app.version}</span>
-										</div>
-									{/if}
+								<h3
+									class="text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight"
+								>
+									{app.name}
+								</h3>
+								{#if appVersions.get(app.id)}
+									<div class="mt-0.5">
+										<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary text-white max-w-[140px]">
+											<span class="truncate">{appVersions.get(app.id).length > 20 ? appVersions.get(app.id).slice(0, 20) + '…' : appVersions.get(app.id)}</span>
+										</span>
+									</div>
+								{/if}
 								</div>
 							</div>
 

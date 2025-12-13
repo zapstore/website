@@ -1,7 +1,7 @@
 <!-- Blog layout wrapper -->
-<div class="pt-16">
-	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-		<div class="max-w-4xl mx-auto">
+<div class="py-12 lg:py-16">
+	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="w-[90%]">
 			<slot />
 		</div>
 	</div>

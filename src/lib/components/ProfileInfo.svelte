@@ -6,7 +6,7 @@
 	export let pubkey;
 	export let npub = '';
 	export let size = 'sm'; // 'sm' or 'lg'
-	export let showLabel = true; // Whether to show "Signed by:" label
+	export let showLabel = true; // Whether to show "Published by:" label
 	export let disableLink = false; // Whether to disable the link functionality
 
 	let profile = null;
@@ -51,7 +51,7 @@
 	{#if disableLink}
 		<div class="flex items-center gap-2">
 			{#if showLabel}
-				<span class="{labelClass}">Signed by:</span>
+				<span class="{labelClass}">Published by:</span>
 			{/if}
 			
 			<!-- Avatar -->
@@ -80,7 +80,7 @@
 	{:else}
 		<div class="flex items-center gap-2">
 			{#if showLabel}
-				<span class="{labelClass}">Signed by:</span>
+				<span class="{labelClass}">Published by:</span>
 			{/if}
 			
 			<a 
