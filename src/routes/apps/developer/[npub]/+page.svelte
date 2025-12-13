@@ -17,6 +17,7 @@
 		fetchAppVersion,
 	} from "$lib/nostr.js";
 	import * as nip19 from "nostr-tools/nip19";
+	import NostrContent from "$lib/components/NostrContent.svelte";
 
 	let developer = null;
 	let apps = [];
@@ -24,6 +25,9 @@
 	let error = null;
 	let pubkey = "";
 	let npub = "";
+	
+	// Zapstore's own npub - don't show published apps for this profile
+	const ZAPSTORE_NPUB = 'npub10r8xl2njyepcw2zwv3a6dyufj4e4ajx86hz6v4ehu4gnpupxxp7stjt2p8';
 	
 	// Store versions fetched from FileMetadata
 	let appVersions = new Map();
@@ -59,18 +63,27 @@
 				return;
 			}
 
-			// Fetch developer profile and apps in parallel
-			const [developerProfile, developerApps] = await Promise.all([
-				fetchProfile(pubkey),
-				fetchApps({ authors: [pubkey], limit: 50 }),
-			]);
-
-			developer = developerProfile;
-			apps = developerApps;
-			loading = false;
+			// For Zapstore's own profile, don't fetch apps
+			const isZapstore = npub === ZAPSTORE_NPUB;
 			
-			// Fetch versions for all apps
-			apps.forEach(app => loadVersionForApp(app));
+			if (isZapstore) {
+				// Only fetch profile for Zapstore
+				developer = await fetchProfile(pubkey);
+				apps = [];
+			} else {
+				// Fetch developer profile and apps in parallel
+				const [developerProfile, developerApps] = await Promise.all([
+					fetchProfile(pubkey),
+					fetchApps({ authors: [pubkey], limit: 50 }),
+				]);
+				developer = developerProfile;
+				apps = developerApps;
+				
+				// Fetch versions for all apps
+				apps.forEach(app => loadVersionForApp(app));
+			}
+			
+			loading = false;
 		} catch (err) {
 			console.error("Error fetching developer data:", err);
 			error = err.message;
@@ -171,11 +184,11 @@
 				</div>
 			</div>
 
-			{#if developer?.about}
-				<div class="text-muted-foreground mb-6 leading-relaxed developer-about">
-					{developer.about}
-				</div>
-			{/if}
+	{#if developer?.about}
+		<div class="text-muted-foreground mb-6 leading-relaxed developer-about text-[0.85rem]">
+			<NostrContent content={developer.about} />
+		</div>
+	{/if}
 
 			<div class="flex flex-wrap gap-4 text-sm text-muted-foreground">
 				{#if apps.length > 0}
@@ -197,19 +210,12 @@
 			</div>
 		</div>
 
-		<!-- Developer Apps -->
+		<!-- Developer Apps - only show if there are apps -->
+		{#if apps.length > 0}
 		<div class="mb-8">
 			<h2 class="text-2xl font-extra-bold mb-6">Published Apps</h2>
 
-			{#if apps.length === 0}
-				<div class="text-center py-12">
-					<Package class="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-					<h3 class="text-lg font-semibold mb-2">No Apps Published</h3>
-					<p class="text-muted-foreground">
-						This developer hasn't published any apps yet.
-					</p>
-				</div>
-			{:else}
+			
 				<div
 					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
 				>
@@ -270,8 +276,8 @@
 						</div>
 					{/each}
 				</div>
-			{/if}
 		</div>
+		{/if}
 	</div>
 {/if}
 
@@ -292,19 +298,9 @@
 		overflow: hidden;
 	}
 
-	/* Ensure long words/URLs wrap; clamp on small screens */
+	/* Ensure long words/URLs wrap */
 	.developer-about {
 		overflow-wrap: anywhere;
 		word-break: break-word;
-	}
-
-	@media (max-width: 640px) {
-		.developer-about {
-			display: -webkit-box;
-			line-clamp: 4;
-			-webkit-line-clamp: 4;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-		}
 	}
 </style>
