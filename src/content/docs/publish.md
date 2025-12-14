@@ -7,6 +7,14 @@ Run `zapstore publish` in a folder with a `zapstore.yaml` config file (recommend
 
 (Need the `zapstore` tool? Get it [here](#download-zapstore-cli) for your platform of choice.)
 
+<h2 id="download-zapstore-cli">Download Zapstore CLI</h2>
+
+- **Recommended**: `zapstore install zapstore` from an existing CLI install to update in-place.
+- **Direct binaries**: grab the latest release for Linux, macOS, or Android host builds at [zapstore.dev/download](/download) or from [GitHub releases](https://github.com/zapstore/zapstore-cli/releases).
+- **From source**: clone `zapstore-cli`, run `dart pub get`, then `dart compile exe lib/main.dart -o zapstore`.
+
+Need an overview of how the CLI, relays, and Android client fit together? See the [Architecture guide](/docs/architecture) first.
+
 ## Quickstart (Android)
 
 Example of a minimal config for pulling from an open source Github project:
@@ -31,6 +39,7 @@ remote_metadata:
   - playstore
   - fdroid
   - github
+  - gitlab
 ```
 
 Example of a minimal `zapstore.yaml` config for local assets. The `assets` list is required.
@@ -81,9 +90,7 @@ license: MIT
 remote_metadata:
   - playstore
   - github
-blossom_servers:
-  - https://cdn.zapstore.dev
-  - https://blossom.band
+blossom_server: https://cdn.zapstore.dev
 assets: # for local
   - test/assets/.*.apk
 # or
@@ -107,8 +114,8 @@ Notes on properties:
   - `changelog`: Local path to the changelog in the [Keep a Changelog](https://keepachangelog.com) format, release notes for the resolved version can be extracted from here, defaults to `CHANGELOG.md`
   - `tags`: String with tags related to the app, separated by a space
   - `license`: Project license in [SPDX](https://spdx.org/licenses/) identifier format
-  - `remote_metadata`: List of remote metadata sources, currently supported: `playstore`, `github`. More coming soon.
-  - `blossom_servers`: List of Blossom servers where to upload assets, only applies to local assets. Includes `icon` and `images`, whether local or pulled via `remote_metadata`. If any upload fails the program will exit as events contain URLs to these Blossom servers which need to be valid.
+  - `remote_metadata`: List of remote metadata sources. Supported values: `playstore`, `fdroid`, `github`, `gitlab`.
+  - `blossom_server`: Blossom upload endpoint (defaults to `https://cdn.zapstore.dev`). Local assets, icons, and screenshots are uploaded here, so make sure the server supports signing kind 24242 authorizations.
   - `assets`: List of paths to assets **as regular expressions**. If paths contain a forward-slash they will trigger the local asset parser, if they don't, the Github parser (as long as there is a `github.com` repository). If they are an HTTP URI, the Web parser. If omitted, the list defaults to a single `.*` which means all assets in Github release, if applicable.
   - `executables`: Strictly for CLI apps that are packaged as a compressed archive, a list of in-archive paths as regular expressions. If omitted, all supported executables (see supported platforms above) inside the archive will be linked and installed.
 
