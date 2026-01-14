@@ -69,52 +69,374 @@
    ======================================== */
 
 :root {
-  /* Refined dark theme with sophisticated blue undertones */
-  --background: 222 18% 8%;
-  --foreground: 210 20% 98%;
+  /* ========================================
+     BASE COLORS – GRAY MODE (LabColorsData.gray) - DEFAULT
+     Edit these HSL values to change colors.
+     ======================================== */
+
+  /* White variants - opacity baked into color definition */
+  --white: 0 0% 100%;
+  --white66: 0 0% 100% / 0.66;
+  --white33: 0 0% 100% / 0.33;
+  --white16: 0 0% 100% / 0.16;
+  --white8: 0 0% 100% / 0.08;
+  --whiteEnforced: 0 0% 100%;
+
+  /* Black variants - opacity baked into color definition */
+  --black: 0 0% 7%;                /* #111111 */
+  --black66: 0 0% 7% / 0.66;
+  --black33: 0 0% 0% / 0.33;
+  --black16: 0 0% 0% / 0.16;
+  --black8: 0 0% 0% / 0.08;
+
+  /* Gray variants - opacity baked into color definition */
+  --gray: 0 0% 14%;               /* #232323 */
+  --gray66: 0 0% 20% / 0.66;      /* #333333 at 66% opacity */
+  --gray33: 0 0% 20% / 0.33;      /* #333333 at 33% opacity */
+
+  /* Blurple color variants - opacity baked into color definition */
+  --blurpleLightColor: 252 100% 72%;  /* #8483FE */
+  --blurpleLightColor66: 252 100% 72% / 0.66;
+  --blurpleColor: 241 99% 67%;        /* #5C5AFE */
+  --blurpleColor66: 241 99% 67% / 0.66;
+  --blurpleColor33: 241 99% 67% / 0.33;
+
+  /* Gold color variants - opacity baked into color definition */
+  --goldColor: 43 100% 70%;           /* #F5C763 */
+  --goldColor66: 43 100% 70% / 0.66;
+
+  /* ========================================
+     SEMANTIC MAPPING (for Tailwind compatibility)
+     These reference the base colors above.
+     ======================================== */
+
+  /* Background & foreground */
+  --background: var(--black);
+  --foreground: var(--white);
   
-  /* Card surfaces with subtle elevation */
-  --card: 222 16% 11%;
-  --card-foreground: 210 20% 98%;
-  --card-elevated: 222 14% 14%;
+  /* Card surfaces */
+  --card: var(--gray66);              /* gray66 for cards */
+  --card-foreground: var(--white);
+  --card-elevated: var(--gray);
   
   /* Popover/dropdown surfaces */
-  --popover: 222 16% 11%;
-  --popover-foreground: 210 20% 98%;
+  --popover: var(--gray);
+  --popover-foreground: var(--white);
   
   /* Header surface */
-  --header: 222 18% 8%;
-  --header-foreground: 210 20% 98%;
+  --header: var(--black);
+  --header-foreground: var(--white);
   
-  /* Primary - Navy blue with good contrast on dark bg */
-  --primary: 215 55% 52%;
-  --primary-hover: 215 55% 45%;
+  /* Primary accent (blurple) */
+  --primary: var(--blurpleColor);
+  --primary-hover: 241 100% 62%;
+  --primary-foreground: var(--white);
+  
+  /* Secondary accent (gold) */
+  --secondary: var(--goldColor);
+  --secondary-foreground: var(--black);
+  
+  /* Accent – lighter blurple */
+  --accent: var(--blurpleLightColor);
+  --accent-foreground: var(--white);
+  
+  /* Destructive (rouge) */
+  --destructive: 344 100% 64%;
+  --destructive-foreground: var(--white);
+  
+  /* Neutrals */
+  --muted: var(--gray);
+  --muted-foreground: var(--white66);
+  
+  /* Borders and inputs - almost always white16 (white at 16% opacity) */
+  --border: 0 0% 100% / 0.16;      /* white16 */
+  --border-subtle: 0 0% 100% / 0.08; /* white8 */
+  --input: 0 0% 100% / 0.16;       /* white16 */
+  --ring: var(--blurpleColor);
+  
+  /* Corner radii */
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-24: 24px;
+  --radius-32: 32px;
+  /* Default radius token (used by Tailwind lg) */
+  --radius: var(--radius-16);
+
+  /* Standardized border widths */
+  --border-thick: 2.8px;   /* For prominent borders */
+  --border-base: 1.4px;    /* For standard borders (replaces most 1px) */
+  --border-subtle: 0.33px; /* For very subtle borders */
+
+  /* Overlay backdrop color (for modals, dialogs, etc.) */
+  --overlay: 0 0% 7% / 0.85;  /* #111111 at 33% opacity 
+
+  /* Standardized backdrop blur values */
+  --blur-sm: 6px;
+  --blur-lg: 16px;
+
+  /* ========================================
+     GRADIENT DEFINITIONS
+     All gradients use radial from top-left corner.
+     Edit these HSL values to change gradient colors.
+     ======================================== */
+
+  /* Blurple gradient (primary) */
+  --gradient-blurple: radial-gradient(
+    circle at top left,
+    hsl(239 100% 68%) 0%,
+    hsl(241 100% 63%) 100%
+  );
+  --gradient-blurple-hover: radial-gradient(
+    circle at top left,
+    hsl(239 100% 63%) 0%,
+    hsl(241 100% 58%) 100%
+  );
+
+  /* Gold gradient (secondary) */
+  --gradient-gold: radial-gradient(
+    circle at top left,
+    hsl(43 100% 50%) 0%,
+    hsl(20 100% 60%) 100%
+  );
+  --gradient-gold-hover: radial-gradient(
+    circle at top left,
+    hsl(43 100% 55%) 0%,
+    hsl(20 100% 65%) 100%
+  );
+
+  /* Rouge gradient (destructive) */
+  --gradient-rouge: radial-gradient(
+    circle at top left,
+    hsl(344 100% 64%) 0%,
+    hsl(338 100% 50%) 100%
+  );
+  --gradient-rouge-hover: radial-gradient(
+    circle at top left,
+    hsl(344 100% 69%) 0%,
+    hsl(338 100% 55%) 100%
+  );
+
+  /* Green gradient */
+  --gradient-green: radial-gradient(
+    circle at top left,
+    hsl(142 76% 50%) 0%,
+    hsl(158 64% 45%) 100%
+  );
+  --gradient-green-hover: radial-gradient(
+    circle at top left,
+    hsl(142 76% 55%) 0%,
+    hsl(158 64% 50%) 100%
+  );
+
+  /* Graydient (gray gradient) - for fancy gradient cards */
+  --gradient-gray: radial-gradient(
+    circle at top left,
+    hsl(0 0% 100%) 0%,
+    hsl(240 100% 93%) 100%        /* #DBDBFF */
+  );
+  --gradient-gray-hover: radial-gradient(
+    circle at top left,
+    hsl(0 0% 100%) 0%,
+    hsl(240 100% 88%) 100%
+  );
+  /* Graydient opacity variants */
+  --gradient-gray66: radial-gradient(
+    circle at top left,
+    hsl(0 0% 100% / 0.66) 0%,
+    hsl(240 100% 93% / 0.66) 100%
+  );
+  --gradient-gray33: radial-gradient(
+    circle at top left,
+    hsl(0 0% 100% / 0.33) 0%,
+    hsl(240 100% 93% / 0.33) 100%
+  );
+  --gradient-gray16: radial-gradient(
+    circle at top left,
+    hsl(0 0% 100% / 0.16) 0%,
+    hsl(240 100% 93% / 0.16) 100%
+  );
+
+  /* ========================================
+     BUTTON GRADIENTS (USED BY BUTTONS)
+     These reference the base gradients above.
+     ======================================== */
+
+  --button-primary-bg: var(--gradient-blurple);
+  --button-primary-bg-hover: var(--gradient-blurple-hover);
+  --button-primary-border: hsl(var(--primary));
+
+  --button-secondary-bg: var(--gradient-gold);
+  --button-secondary-bg-hover: var(--gradient-gold-hover);
+  --button-secondary-border: hsl(var(--border));
+}
+
+/* ========================================
+   THEME VARIANTS (DARK / GRAY / LIGHT)
+   Override the SAME tokens as above.
+   Toggle via [data-theme="dark" | "gray" | "light"].
+   ======================================== */
+
+[data-theme="dark"] {
+  /* ========================================
+     BASE COLORS – DARK MODE (LabColorsData.dark)
+     ======================================== */
+
+  /* White variants - opacity baked into color definition */
+  --white: 0 0% 100%;
+  --white66: 0 0% 100% / 0.66;
+  --white33: 0 0% 100% / 0.33;
+  --white16: 0 0% 100% / 0.16;
+  --white8: 0 0% 100% / 0.08;
+  --whiteEnforced: 0 0% 100%;
+
+  /* Black variants - opacity baked into color definition */
+  --black: 0 0% 0%;                /* Pure black */
+  --black66: 0 0% 0% / 0.66;
+  --black33: 0 0% 0% / 0.33;
+  --black16: 0 0% 0% / 0.16;
+  --black8: 0 0% 0% / 0.08;
+
+  /* Gray variants - opacity baked into color definition */
+  --gray: 0 0% 14%;               /* #232323 */
+  --gray66: 0 0% 20% / 0.66;      /* #333333 at 66% opacity */
+  --gray33: 0 0% 20% / 0.33;      /* #333333 at 33% opacity */
+
+  /* Overlay backdrop color */
+  --overlay: 0 0% 0% / 0.85;  /* #000000 (pure black) at 85% opacity */
+
+  /* Blurple color variants - opacity baked into color definition */
+  --blurpleLightColor: 252 100% 72%;  /* #8483FE */
+  --blurpleLightColor66: 252 100% 72% / 0.66;
+  --blurpleColor: 241 99% 67%;        /* #5C5AFE */
+  --blurpleColor66: 241 99% 67% / 0.66;
+  --blurpleColor33: 241 99% 67% / 0.33;
+
+  /* Gold color variants - opacity baked into color definition */
+  --goldColor: 43 100% 70%;           /* #F5C763 */
+  --goldColor66: 43 100% 70% / 0.66;
+
+  /* Semantic mapping */
+  --background: var(--black);
+  --foreground: var(--white);
+  --card: var(--gray66);
+  --card-foreground: var(--white);
+  --card-elevated: var(--gray);
+  --popover: var(--gray);
+  --popover-foreground: var(--white);
+  --header: var(--black);
+  --header-foreground: var(--white);
+  --primary: var(--blurpleColor);
+  --primary-hover: 241 100% 62%;
+  --primary-foreground: var(--white);
+  --secondary: var(--goldColor);
+  --secondary-foreground: var(--black);
+  --accent: var(--blurpleLightColor);
+  --accent-foreground: var(--white);
+  --destructive: 344 100% 64%;
+  --destructive-foreground: var(--white);
+  --muted: var(--gray);
+  --muted-foreground: var(--white66);
+  --border: 0 0% 100% / 0.16;      /* white16 */
+  --border-subtle: 0 0% 100% / 0.08; /* white8 */
+  --input: 0 0% 100% / 0.16;       /* white16 */
+  --ring: var(--blurpleColor);
+}
+
+/* [data-theme="gray"] - Uses :root values (gray is default) */
+
+[data-theme="light"] {
+  /* ========================================
+     BASE COLORS – LIGHT MODE (LabColorsData.light)
+     ======================================== */
+
+  /* White variants - opacity baked into color definition */
+  --white: 35 40% 10%;            /* #1A1201 */
+  --white66: 35 40% 10% / 0.66;
+  --white33: 35 40% 10% / 0.33;
+  --white16: 35 40% 10% / 0.16;
+  --white8: 35 40% 10% / 0.08;
+  --whiteEnforced: 35 35% 93%;    /* #EDE4D7 */
+
+  /* Black variants - opacity baked into color definition */
+  --black: 35 42% 92%;            /* #EDE4D7 */
+  --black66: 35 35% 91% / 0.66;   /* #E9E9E9 at 66% opacity */
+  --black33: 35 35% 91% / 0.33;
+  --black16: 35 35% 91% / 0.16;
+  --black8: 35 35% 91% / 0.08;
+
+  /* Gray variants - opacity baked into color definition */
+  --gray: 35 18% 72%;             /* #BBB5A8 */
+  --gray66: 35 20% 68% / 0.66;    /* #AEA798 at 66% opacity */
+  --gray33: 35 20% 68% / 0.33;
+
+  /* Overlay backdrop color */
+  --overlay: 0 0% 0% / 0.33;  /* #000000 at 33% opacity */
+
+  /* Blurple color variants - opacity baked into color definition */
+  --blurpleLightColor: 240 50% 50%;  /* #4B4BCD */
+  --blurpleLightColor66: 240 50% 50% / 0.66;
+  --blurpleColor: 241 99% 67%;        /* #5C5AFE */
+  --blurpleColor66: 241 99% 67% / 0.66;
+  --blurpleColor33: 241 99% 67% / 0.33;
+
+  /* Gold color variants - opacity baked into color definition */
+  --goldColor: 40 85% 50%;            /* #E99C0A */
+  --goldColor66: 40 85% 50% / 0.66;
+
+  /* Semantic mapping */
+  --background: var(--black);
+  --foreground: var(--white);
+  --card: var(--gray66);
+  --card-foreground: var(--white);
+  --card-elevated: var(--black66);
+  --popover: var(--black66);
+  --popover-foreground: var(--white);
+  --header: var(--black);
+  --header-foreground: var(--white);
+  --primary: var(--blurpleColor);
+  --primary-hover: 241 100% 62%;
   --primary-foreground: 0 0% 100%;
-  
-  /* Secondary - Subtle */
-  --secondary: 222 14% 16%;
-  --secondary-foreground: 210 15% 85%;
-  
-  /* Muted - Low contrast elements */
-  --muted: 222 12% 18%;
-  --muted-foreground: 215 12% 65%;
-  
-  /* Accent - Lighter navy for highlights */
-  --accent: 215 50% 62%;
-  --accent-foreground: 210 20% 98%;
-  
-  /* Destructive */
-  --destructive: 0 72% 55%;
-  --destructive-foreground: 0 0% 98%;
-  
-  /* Borders and inputs */
-  --border: 222 12% 20%;
-  --border-subtle: 222 10% 16%;
-  --input: 222 12% 20%;
-  --ring: 215 55% 52%;
-  
-  /* Radius */
-  --radius: 0.5rem;
+  --secondary: var(--goldColor);
+  --secondary-foreground: var(--white);
+  --accent: var(--blurpleLightColor);
+  --accent-foreground: 0 0% 100%;
+  --destructive: 344 100% 64%;
+  --destructive-foreground: 0 0% 100%;
+  --muted: var(--gray);
+  --muted-foreground: var(--gray66);
+  --border: 35 40% 10% / 0.16;     /* white16 (dark text at 16% opacity) */
+  --border-subtle: 35 40% 10% / 0.08; /* white8 */
+  --input: 35 40% 10% / 0.16;      /* white16 */
+  --ring: var(--blurpleColor);
+
+  /* Graydient for light mode (darker grays) */
+  --gradient-gray: radial-gradient(
+    circle at top left,
+    hsl(240 15% 40%) 0%,          /* #535367 */
+    hsl(0 0% 14%) 100%             /* #232323 */
+  );
+  --gradient-gray-hover: radial-gradient(
+    circle at top left,
+    hsl(240 15% 35%) 0%,
+    hsl(0 0% 12%) 100%
+  );
+  --gradient-gray66: radial-gradient(
+    circle at top left,
+    hsl(240 15% 40% / 0.66) 0%,
+    hsl(0 0% 14% / 0.66) 100%
+  );
+  --gradient-gray33: radial-gradient(
+    circle at top left,
+    hsl(240 15% 40% / 0.33) 0%,
+    hsl(0 0% 14% / 0.33) 100%
+  );
+  --gradient-gray16: radial-gradient(
+    circle at top left,
+    hsl(240 15% 40% / 0.20) 0%,
+    hsl(0 0% 14% / 0.20) 100%
+  );
 }
 
 /* ========================================
@@ -144,26 +466,32 @@ body {
    ======================================== */
 
 .font-sans { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-.font-display { font-family: 'Clash Display', system-ui, sans-serif; }
+.font-display { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 .font-mono { font-family: 'Geist Mono', monospace; }
 
-/* Base heading styles - all h1-h6 use Clash Display semibold */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-weight: 600;
+/* Base heading styles - all h1-h6 use Inter */
+h1, h2, h3, h4 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 650; /* Bold for large headings */
+  letter-spacing: -0.03em; /* Tighter letter spacing for headers */
+}
+h5, h6 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600; /* Semibold for smaller headings */
+  letter-spacing: -0.02em; /* Tighter letter spacing for smaller headers */
 }
 
-/* Display headings with Clash Display */
+/* Display headings with Inter */
 .text-display {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-weight: 600;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 650; /* Bold for display text */
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
 .text-display-lg {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-weight: 600;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 650; /* Bold for large display text */
   letter-spacing: -0.025em;
   line-height: 1.1;
 }
@@ -183,6 +511,7 @@ h1, h2, h3, h4, h5, h6 {
 .bg-accent { background-color: hsl(var(--accent)); }
 .bg-destructive { background-color: hsl(var(--destructive)); }
 .bg-header { background-color: hsl(var(--header)); }
+.bg-overlay { background-color: hsl(var(--overlay)); }
 
 .text-foreground { color: hsl(var(--foreground)); }
 .text-card-foreground { color: hsl(var(--card-foreground)); }
@@ -229,21 +558,75 @@ h1, h2, h3, h4, h5, h6 {
 .hover\:border-primary\/50:hover { border-color: hsl(var(--primary) / 0.5); }
 
 /* ========================================
+   STANDARDIZED BORDER WIDTH UTILITIES
+   ======================================== */
+
+/* Border width utilities - use with Tailwind border-color classes
+   Examples: border-thick border-primary, border-base border-border, border-subtle border-muted
+   Or use Tailwind classes: border-thick, border-base, border-subtle
+*/
+.border-thick { border-width: var(--border-thick); }
+.border-base { border-width: var(--border-base); }
+.border-subtle {
+  border-width: var(--border-subtle);  /* 0.33px */
+  border-color: hsl(var(--border));    /* white16 */
+}
+
+/* ========================================
+   STANDARDIZED BORDER RADIUS UTILITIES
+   ======================================== */
+
+/* Direct radius utilities - use these if Tailwind classes aren't working yet
+   After restarting dev server, prefer: rounded-xs, rounded-sm, rounded-md, rounded-lg, rounded-xl, rounded-2xl
+*/
+.rounded-xs { border-radius: var(--radius-4); }   /* 4px */
+.rounded-sm { border-radius: var(--radius-8); }   /* 8px */
+.rounded-md { border-radius: var(--radius-12); }  /* 12px */
+.rounded-lg { border-radius: var(--radius-16); }  /* 16px */
+.rounded-xl { border-radius: var(--radius-24); } /* 24px */
+.rounded-2xl { border-radius: var(--radius-32); } /* 32px */
+
+/* ========================================
+   STANDARDIZED BACKDROP BLUR UTILITIES
+   ======================================== */
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+}
+
+/* ========================================
+   OVERLAY SURFACES
+   ======================================== */
+
+.overlay-surface {
+  background-color: hsl(var(--gray66)); /* gray66 at 66% opacity (baked in) */
+  backdrop-filter: blur(var(--blur-sm)); /* Small blur on overlay background */
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  border: 1px solid hsl(var(--border));
+}
+
+/* ========================================
    GLASSMORPHISM CARDS
    ======================================== */
 
 .glass-card {
   background: hsl(var(--card) / 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--blur-lg)); /* Large blur on cards/modals */
+  -webkit-backdrop-filter: blur(var(--blur-lg));
   border: 1px solid hsl(var(--border) / 0.5);
   border-radius: 1rem;
 }
 
 .glass-card-subtle {
   background: hsl(var(--card) / 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--blur-lg)); /* Large blur on cards/modals */
+  -webkit-backdrop-filter: blur(var(--blur-lg));
   border: 1px solid hsl(var(--border) / 0.3);
   border-radius: 0.75rem;
 }
@@ -282,43 +665,180 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ========================================
    BUTTON STYLES
+   Three sizes for both primary and secondary: large, default, small
    ======================================== */
 
+/* ========================================
+   PRIMARY BUTTONS (blurple gradient)
+   ======================================== */
+
+/* Large primary button */
+.btn-primary-large {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* ~42px total height with 18px font */
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: hsl(var(--primary-foreground));
+  background-image: var(--button-primary-bg);
+  background-color: transparent;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: scale(1);
+}
+
+.btn-primary-large:hover {
+  transform: scale(1.015);
+  box-shadow:
+    0 0 20px hsl(var(--primary) / 0.4),
+    0 10px 40px -20px hsl(var(--primary) / 0.6);
+}
+
+.btn-primary-large:active {
+  transform: scale(0.98);
+}
+
+/* Default primary button */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  /* ~38px total height with 16px font (Flutter main CTA) */
+  padding: 8px 18px;
+  font-size: 16px;
   font-weight: 500;
   color: hsl(var(--primary-foreground));
-  background: hsl(var(--primary));
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  background-image: var(--button-primary-bg);
+  background-color: transparent;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: scale(1);
 }
 
 .btn-primary:hover {
-  background: hsl(var(--primary-hover));
-  box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  transform: scale(1.025);
+  box-shadow:
+    0 0 20px hsl(var(--primary) / 0.4),
+    0 10px 40px -20px hsl(var(--primary) / 0.6);
 }
 
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Small primary button */
+.btn-primary-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* ~32px total height with 14px font */
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--primary-foreground));
+  background-image: var(--button-primary-bg);
+  background-color: transparent;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: scale(1);
+}
+
+.btn-primary-small:hover {
+  transform: scale(1.025);
+  box-shadow:
+    0 0 20px hsl(var(--primary) / 0.4),
+    0 10px 40px -20px hsl(var(--primary) / 0.6);
+}
+
+.btn-primary-small:active {
+  transform: scale(0.98);
+}
+
+/* ========================================
+   SECONDARY BUTTONS (gray66 background)
+   ======================================== */
+
+/* Large secondary button */
+.btn-secondary-large {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* ~42px total height with 18px font */
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--card)); /* gray66 */
+  border: none;
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+  transform: scale(1);
+}
+
+.btn-secondary-large:hover {
+  transform: scale(1.025);
+}
+
+.btn-secondary-large:active {
+  transform: scale(0.98);
+}
+
+/* Default secondary button */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  /* ~38px total height with 16px font (same as primary) */
+  padding: 10px 22px;
+  font-size: 16px;
   font-weight: 500;
-  color: hsl(var(--foreground) / 0.9);
-  background: transparent;
-  border: 1px solid hsl(var(--border));
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--card)); /* gray66 */
+  border: none;
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+  transform: scale(1);
 }
 
 .btn-secondary:hover {
-  background: hsl(var(--card));
-  border-color: hsl(var(--border) / 0.8);
+  transform: scale(1.025);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Small secondary button */
+.btn-secondary-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* ~32px total height with 14px font */
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--card)); /* gray66 */
+  border: none;
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+  transform: scale(1);
+}
+
+.btn-secondary-small:hover {
+  transform: scale(1.025);
+}
+
+.btn-secondary-small:active {
+  transform: scale(0.98);
 }
 
 /* ========================================
@@ -436,9 +956,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose h1 {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 2.375rem;
-  font-weight: 600;
+  font-weight: 650; /* Bold for large headings */
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin-top: 0;
@@ -447,9 +967,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose h2 {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 650; /* Bold for large headings */
   line-height: 1.2;
   letter-spacing: -0.015em;
   margin-top: 3rem;
@@ -458,9 +978,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose h3 {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 1.375rem;
-  font-weight: 600;
+  font-weight: 650; /* Bold for large headings */
   line-height: 1.25;
   letter-spacing: -0.01em;
   margin-top: 2.5rem;
@@ -469,9 +989,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose h4 {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 650; /* Bold for large headings */
   line-height: 1.3;
   letter-spacing: -0.005em;
   margin-top: 2rem;

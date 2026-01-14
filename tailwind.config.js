@@ -49,9 +49,18 @@ export default {
         }
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+        xs: 'var(--radius-4)',   // 4px
+        sm: 'var(--radius-8)',   // 8px
+        md: 'var(--radius-12)',  // 12px
+        lg: 'var(--radius-16)',  // 16px - primary workhorse
+        xl: 'var(--radius-24)',  // 24px
+        '2xl': 'var(--radius-32)', // 32px - pairs perfectly with 16px padding
+        full: '9999px'
+      },
+      borderWidth: {
+        'thick': 'var(--border-thick)',
+        'base': 'var(--border-base)',
+        'subtle': 'var(--border-subtle)'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
