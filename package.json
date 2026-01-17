@@ -8,7 +8,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"add-testimonial": "node scripts/add-testimonial.js"
+		"add-testimonial": "node scripts/add-testimonial.js",
+		"generate-icons": "node scripts/generate-icons.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^6.0.0",

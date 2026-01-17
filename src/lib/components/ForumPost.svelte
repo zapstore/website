@@ -1,0 +1,176 @@
+<script>
+  import Label from "./Label.svelte";
+
+  /**
+   * Forum Post Component
+   * Displays a forum post card similar to testimonial cards
+   * with a title and scrollable labels at the bottom
+   */
+
+  export let author = {
+    name: "",
+    picture: "",
+    npub: "",
+  };
+  export let title = "";
+  export let content = "";
+  export let timestamp = "";
+  export let labels = []; // Array of label text strings
+  export let onClick = () => {};
+
+  function getDisplayName() {
+    return author.name || author.npub?.slice(0, 12) + "..." || "Anonymous";
+  }
+
+  function formatDateTime(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  }
+</script>
+
+<div
+  class="forum-post-card group"
+  on:click={onClick}
+  role="button"
+  tabindex="0"
+>
+  <!-- Top row: Profile pic, name, date/time -->
+  <div class="flex items-center gap-3 mb-3">
+    {#if author.picture}
+      <img
+        src={author.picture}
+        alt={getDisplayName()}
+        class="w-10 h-10 rounded-full object-cover flex-shrink-0"
+        loading="lazy"
+      />
+    {:else}
+      <div
+        class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0"
+      >
+        <span class="text-primary font-semibold text-sm">
+          {getDisplayName().charAt(0).toUpperCase()}
+        </span>
+      </div>
+    {/if}
+
+    <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
+      <span
+        class="font-semibold truncate text-base"
+        style="color: hsl(var(--white66));"
+      >
+        {getDisplayName()}
+      </span>
+      <span
+        class="text-xs whitespace-nowrap flex-shrink-0"
+        style="color: hsl(var(--white33));"
+      >
+        {formatDateTime(timestamp)}
+      </span>
+    </div>
+  </div>
+
+  <!-- Title -->
+  {#if title}
+    <h3
+      class="text-lg font-semibold mb-2 line-clamp-2"
+      style="color: hsl(var(--white66));"
+    >
+      {title}
+    </h3>
+  {/if}
+
+  <!-- Content -->
+  {#if content}
+    <p
+      class="text-base leading-relaxed whitespace-pre-wrap mb-3 line-clamp-3"
+      style="color: hsl(var(--white66));"
+    >
+      {content}
+    </p>
+  {/if}
+
+  <!-- Labels row -->
+  {#if labels && labels.length > 0}
+    <div class="labels-container">
+      <div class="flex gap-2 overflow-x-auto scrollbar-hide pt-2">
+        {#each labels as label}
+          <div class="flex-shrink-0">
+            <Label text={label} isSelected={false} isEmphasized={false} />
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
+</div>
+
+<style>
+  .forum-post-card {
+    display: block;
+    padding: 1rem;
+    background: hsl(var(--gray44));
+    border: 1px solid hsl(var(--border) / 0.4);
+    border-radius: 1.25rem;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+    height: fit-content;
+    overflow: visible;
+  }
+
+  .labels-container {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .forum-post-card:hover {
+    transform: scale(1.01);
+  }
+
+  .forum-post-card:active {
+    transform: scale(0.99);
+  }
+
+  .forum-post-card:focus {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

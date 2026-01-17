@@ -1,0 +1,60 @@
+<script>
+  import { Download } from "$lib/components/icons";
+  import { assets } from "$app/paths";
+
+  export let showDownloadModal = () => {};
+</script>
+
+<!-- Get The App Section -->
+<section
+  class="relative h-[85vh] sm:h-[75vh] md:h-[70vh] lg:h-[65vh] border-t border-border/50 overflow-hidden"
+>
+  <!-- Section background decoration -->
+  <div
+    class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.08),transparent)]"
+  ></div>
+  <div
+    class="container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 h-full relative z-10"
+  >
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start h-full pt-16 lg:pt-20"
+    >
+      <!-- Left: Content -->
+      <div
+        class="space-y-6 p-8 rounded-2xl lg:order-2"
+        style="background-color: hsl(var(--gray44)); border-radius: var(--radius-32);"
+      >
+        <h2
+          class="section-title text-display-lg text-3xl sm:text-4xl lg:text-4xl xl:text-5xl leading-tight section-title-gradient"
+        >
+          Get The App
+        </h2>
+        <p class="section-description max-w-xl pb-2">
+          Lorem ipsum dolor sit amet and then some more of this weird and
+          unreadable consectetur adipiscing elit.
+        </p>
+        <button
+          type="button"
+          on:click={showDownloadModal}
+          class="btn-primary-large w-full flex items-center justify-center gap-3"
+        >
+          <Download variant="fill" color="hsl(var(--white66))" size={20} />
+          Download
+        </button>
+      </div>
+
+      <!-- Right: App Image -->
+      <div class="flex justify-center lg:justify-end h-full lg:order-1">
+        <div class="relative w-full max-w-md lg:max-w-lg h-full px-6 lg:px-8">
+          <img
+            src={`${assets}/images/android-app-screenshot.png`}
+            alt="Zapstore Android app screenshot"
+            class="w-full h-full object-cover object-top"
+            style="filter: drop-shadow(0 0 60px hsl(var(--blurpleColor) / 0.1)) drop-shadow(0 0 120px hsl(var(--blurpleColor) / 0.05));"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
