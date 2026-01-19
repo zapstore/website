@@ -2,25 +2,27 @@
   import { Zap, ChevronRight } from "$lib/components/icons";
 
   // Varying sizes for zap icons (3 icons per side)
-  const leftSizes = [32, 48, 40];
-  const rightSizes = [40, 56, 32];
+  // Base sizes - will scale down on smaller screens
+  const leftSizes = [32, 56, 44];
+  const rightSizes = [40, 64, 40];
 
-  // Vertical positions (as percentages from top) - moved closer to top
+  // Vertical positions (as percentages from top)
+  // Top icons lower, middle stays, bottom stays
   const leftTopPositions = [
-    "calc(10% - 40px)",
+    "calc(15% - 40px)",
     "calc(25% - 40px)",
     "calc(50% - 40px)",
   ];
   const rightTopPositions = [
-    "calc(8% - 40px)",
+    "calc(13% - 40px)",
     "calc(25% - 40px)",
     "calc(55% - 40px)",
   ];
 
   // Horizontal positions (as percentages from left/right)
-  // Small screens: top and bottom more centered, middle less centered
-  const leftPositions = ["18%", "8%", "18%"];
-  const rightPositions = ["18%", "8%", "18%"];
+  // Middle farthest, top slightly closer, bottom closest
+  const leftPositions = ["14%", "10%", "18%"];
+  const rightPositions = ["14%", "10%", "18%"];
 
   // Opacity based on size (smaller = less opacity)
   function getOpacity(size) {
@@ -46,6 +48,22 @@
 </script>
 
 <section class="relative border-t border-border/50 overflow-hidden">
+  <!-- SVG gradient definition matching --gradient-gold preset (#FFC736 to #FFA037) -->
+  <svg class="absolute w-0 h-0" aria-hidden="true">
+    <defs>
+      <linearGradient
+        id="zap-gold-gradient"
+        x1="0%"
+        y1="0%"
+        x2="100%"
+        y2="100%"
+      >
+        <stop offset="0%" stop-color="#FFC736" />
+        <stop offset="100%" stop-color="#FFA037" />
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- Left zap icons -->
   {#each Array(3) as _, i}
     <div
@@ -54,7 +72,7 @@
         i
       ]}; animation-delay: {i * 0.2}s; opacity: {getOpacity(leftSizes[i])};"
     >
-      <Zap variant="fill" color="hsl(43, 100%, 50%)" size={leftSizes[i]} />
+      <Zap variant="fill" color="url(#zap-gold-gradient)" size={leftSizes[i]} />
     </div>
   {/each}
 
@@ -68,7 +86,11 @@
         rightSizes[i]
       )};"
     >
-      <Zap variant="fill" color="hsl(43, 100%, 50%)" size={rightSizes[i]} />
+      <Zap
+        variant="fill"
+        color="url(#zap-gold-gradient)"
+        size={rightSizes[i]}
+      />
     </div>
   {/each}
 
@@ -76,12 +98,15 @@
     <!-- Center text -->
     <div class="relative z-20 text-center mb-8">
       <h2 class="section-title text-display-lg leading-tight">
-        <span
-          class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl"
-          style="background: var(--gradient-gray); -webkit-background-clip: text; background-clip: text; color: transparent;"
+        <span class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl"
+          ><span
+            style="background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; color: transparent;"
+            >#</span
+          ><span
+            style="background: var(--gradient-gray); -webkit-background-clip: text; background-clip: text; color: transparent;"
+            >ZapTheApp</span
+          ></span
         >
-          #ZapTheApp
-        </span>
       </h2>
       <p class="section-description max-w-2xl mx-auto mt-7">
         Users, valuing devs.<br />No middlemen.
@@ -118,6 +143,7 @@
   .zap-icon-container {
     animation: float 3s ease-in-out infinite;
     filter: drop-shadow(0 0 8px hsl(43 100% 50% / 0.5));
+    --icon-scale: 0.85; /* Default scale for mobile */
   }
 
   .feed-bg {
@@ -154,22 +180,22 @@
     right: var(--right-pos);
   }
 
-  /* Large screens - top and bottom more centered, middle less centered */
+  /* Large screens - middle farthest, top slightly closer, bottom closest */
   @media (min-width: 1024px) {
     .zap-left-0 {
-      left: 32%;
+      left: 28%;
     }
     .zap-left-1 {
-      left: 20%;
+      left: 22%;
     }
     .zap-left-2 {
       left: 30%;
     }
     .zap-right-0 {
-      right: 32%;
+      right: 28%;
     }
     .zap-right-1 {
-      right: 20%;
+      right: 22%;
     }
     .zap-right-2 {
       right: 30%;
@@ -179,10 +205,22 @@
   @keyframes float {
     0%,
     100% {
-      transform: translateY(0px);
+      transform: scale(var(--icon-scale, 0.85)) translateY(0px);
     }
     50% {
-      transform: translateY(-20px);
+      transform: scale(var(--icon-scale, 0.85)) translateY(-20px);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .zap-icon-container {
+      --icon-scale: 0.9;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .zap-icon-container {
+      --icon-scale: 1;
     }
   }
 </style>

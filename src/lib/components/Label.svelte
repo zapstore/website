@@ -89,7 +89,7 @@
     gap: 8px;
     height: 32px;
     padding-left: 12px;
-    padding-right: 8px;
+    padding-right: 4px;
     background-color: var(--bg-color);
     border-radius: 12px 0 0 12px;
     max-width: 200px;

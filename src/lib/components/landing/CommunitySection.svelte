@@ -139,7 +139,7 @@
   }
 </script>
 
-<section class="border-t border-border/50 py-16 lg:py-20">
+<section class="border-t border-border/50 py-12 lg:py-16">
   <SectionHeader
     title="Our Community"
     showSeeMore={true}

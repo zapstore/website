@@ -95,8 +95,9 @@
   --blurpleColor33: 241 99% 67% / 0.33;
 
   /* Gold color variants - opacity baked into color definition */
-  --goldColor: 43 100% 70%;           /* #F5C763 */
-  --goldColor66: 43 100% 70% / 0.66;
+  --goldColor: 37 100% 61%;           /* #FFB237 */
+  --goldColor66: 37 100% 61% / 0.66;
+  --goldColor33: 37 100% 61% / 0.33;
 
   /* ========================================
      SEMANTIC MAPPING (for Tailwind compatibility)
@@ -172,97 +173,111 @@
   /* ========================================
      GRADIENT DEFINITIONS
      All gradients use radial from top-left corner.
-     Edit these HSL values to change gradient colors.
      ======================================== */
 
   /* Blurple gradient (primary) */
   --gradient-blurple: radial-gradient(
     circle at top left,
-    hsl(239 100% 68%) 0%,
-    hsl(241 100% 63%) 100%
+    #5C5FFF 0%,
+    #4542FF 100%
   );
   --gradient-blurple-hover: radial-gradient(
     circle at top left,
-    hsl(239 100% 63%) 0%,
-    hsl(241 100% 58%) 100%
+    #4245FF 0%,
+    #2C29FF 100%
   );
 
-  /* Gold gradient (secondary) */
+  /* Gold gradient (secondary) - #FFC736 to #FFA037 */
   --gradient-gold: radial-gradient(
     circle at top left,
-    hsl(43 100% 50%) 0%,
-    hsl(20 100% 60%) 100%
+    #FFC736 0%,
+    #FFA037 100%
   );
   --gradient-gold-hover: radial-gradient(
     circle at top left,
-    hsl(43 100% 55%) 0%,
-    hsl(20 100% 65%) 100%
+    #FFD24D 0%,
+    #FFB050 100%
   );
 
   /* Rouge gradient (destructive) */
   --gradient-rouge: radial-gradient(
     circle at top left,
-    hsl(344 100% 64%) 0%,
-    hsl(338 100% 50%) 100%
+    #FF4778 0%,
+    #FF005E 100%
   );
   --gradient-rouge-hover: radial-gradient(
     circle at top left,
-    hsl(344 100% 69%) 0%,
-    hsl(338 100% 55%) 100%
+    #FF618B 0%,
+    #FF1A6E 100%
   );
 
-  /* Blurple-tinted white-purple gradient */
-  --gradient-blurple-white: radial-gradient(
+  /* White-to-color gradients for headers */
+  --gradient-white-blurple: radial-gradient(
     circle at top left,
-    hsl(241, 100%, 90%) 0%,      
-    hsl(239 100% 68%) 100%   
+    #FFFFFF 0%,        /* White */
+    #8280FE 100%       /* Blurple */
+  );
+  --gradient-white-green: radial-gradient(
+    circle at top left,
+    #FFFFFF 0%,        /* White */
+    #12CC81 100%       /* Green */
+  );
+  --gradient-white-gold: radial-gradient(
+    circle at top left,
+    #FFFFFF 0%,        /* White */
+    #FFB237 100%       /* Gold */
+  );
+  --gradient-white-rouge: radial-gradient(
+    circle at top left,
+    #FFFFFF 0%,        /* White */
+    #FF4778 100%       /* Rouge */
   );
 
-  /* White-purpleish gradient for headers */
-  --gradient-white-purple: radial-gradient(
+  /* Blurple-tinted light gradient */
+  --gradient-blurple-light: radial-gradient(
     circle at top left,
-    hsl(0 0% 100%) 0%,        /* White */
-    hsl(241 99% 75%) 100%     /* Purple */
+    #CDCCFF 0%,        /* Light blurple */
+    #5C5FFF 100%       /* Blurple */
   );
 
   /* Green gradient */
   --gradient-green: radial-gradient(
     circle at top left,
-    hsl(142 76% 50%) 0%,
-    hsl(158 64% 45%) 100%
+    #19DD75 0%,
+    #0BBB8C 100%
   );
   --gradient-green-hover: radial-gradient(
     circle at top left,
-    hsl(142 76% 55%) 0%,
-    hsl(158 64% 50%) 100%
+    #19DD75 0%,
+    #0BBB8C 100%
   );
 
   /* Graydient (gray gradient) - for fancy gradient cards */
   --gradient-gray: radial-gradient(
     circle at top left,
-    hsl(0 0% 100%) 0%,
-    hsl(240 100% 93%) 100%        /* #DBDBFF */
+    #FFFFFF 0%,
+    #DBDBFF 100%
   );
   --gradient-gray-hover: radial-gradient(
     circle at top left,
-    hsl(0 0% 100%) 0%,
-    hsl(240 100% 88%) 100%
+    #FFFFFF 0%,
+    #C2C2FF 100%
   );
   /* Graydient opacity variants */
   --gradient-gray66: radial-gradient(
     circle at top left,
-    hsl(0 0% 100% / 0.66) 0%,
-    hsl(240 100% 93% / 0.66) 100%
+    rgb(255 255 255 / 0.66) 0%,
+    rgb(219 219 255 / 0.66) 100%
   );
   --gradient-gray33: radial-gradient(
     circle at top left,
-    hsl(0 0% 100% / 0.33) 0%,
-    hsl(240 100% 93% / 0.33) 100%
+    rgb(255 255 255 / 0.33) 0%,
+    rgb(219 219 255 / 0.33) 100%
   );
   --gradient-gray16: radial-gradient(
     circle at top left,
-    hsl(0 0% 100% / 0.16) 0%,
-    hsl(240 100% 93% / 0.16) 100%
+    rgb(255 255 255 / 0.16) 0%,
+    rgb(219 219 255 / 0.16) 100%
   );
 
   /* ========================================
@@ -322,9 +337,10 @@
   --blurpleColor66: 241 99% 67% / 0.66;
   --blurpleColor33: 241 99% 67% / 0.33;
 
-  /* Gold color variants - opacity baked into color definition */
-  --goldColor: 43 100% 70%;           /* #F5C763 */
-  --goldColor66: 43 100% 70% / 0.66;
+  /* Gold color variants - same across all themes */
+  --goldColor: 37 100% 61%;           /* #FFB237 */
+  --goldColor66: 37 100% 61% / 0.66;
+  --goldColor33: 37 100% 61% / 0.33;
 
   /* Semantic mapping */
   --background: var(--black);
@@ -391,9 +407,10 @@
   --blurpleColor66: 241 99% 67% / 0.66;
   --blurpleColor33: 241 99% 67% / 0.33;
 
-  /* Gold color variants - opacity baked into color definition */
-  --goldColor: 40 85% 50%;            /* #E99C0A */
-  --goldColor66: 40 85% 50% / 0.66;
+  /* Gold color variants - same across all themes */
+  --goldColor: 37 100% 61%;           /* #FFB237 */
+  --goldColor66: 37 100% 61% / 0.66;
+  --goldColor33: 37 100% 61% / 0.33;
 
   /* Semantic mapping */
   --background: var(--black);
@@ -424,28 +441,28 @@
   /* Graydient for light mode (darker grays) */
   --gradient-gray: radial-gradient(
     circle at top left,
-    hsl(240 15% 40%) 0%,          /* #535367 */
-    hsl(0 0% 14%) 100%             /* #232323 */
+    #575775 0%,
+    #242424 100%
   );
   --gradient-gray-hover: radial-gradient(
     circle at top left,
-    hsl(240 15% 35%) 0%,
-    hsl(0 0% 12%) 100%
+    #4C4C67 0%,
+    #1F1F1F 100%
   );
   --gradient-gray66: radial-gradient(
     circle at top left,
-    hsl(240 15% 40% / 0.66) 0%,
-    hsl(0 0% 14% / 0.66) 100%
+    rgb(87 87 117 / 0.66) 0%,
+    rgb(36 36 36 / 0.66) 100%
   );
   --gradient-gray33: radial-gradient(
     circle at top left,
-    hsl(240 15% 40% / 0.33) 0%,
-    hsl(0 0% 14% / 0.33) 100%
+    rgb(87 87 117 / 0.33) 0%,
+    rgb(36 36 36 / 0.33) 100%
   );
   --gradient-gray16: radial-gradient(
     circle at top left,
-    hsl(240 15% 40% / 0.20) 0%,
-    hsl(0 0% 14% / 0.20) 100%
+    rgb(87 87 117 / 0.20) 0%,
+    rgb(36 36 36 / 0.20) 100%
   );
 }
 
@@ -721,6 +738,14 @@ h5, h6 {
   transform: scale(0.98);
 }
 
+/* Responsive: Scale down large primary button to 38px height on smaller devices */
+@media (max-width: 1023px) {
+  .btn-primary-large {
+    /* ~38px total height with 16px font */
+    padding: 8px 18px;
+  }
+}
+
 /* Default primary button */
 .btn-primary {
   display: inline-flex;
@@ -790,14 +815,15 @@ h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* ~42px total height with 18px font */
+  /* ~42px total height with 16px font */
   padding: 12px 24px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: hsl(var(--foreground));
   background-color: hsl(var(--card)); /* gray66 */
   border: none;
   border-radius: 16px;
+  cursor: pointer;
   transition: transform 0.2s ease;
   transform: scale(1);
 }
@@ -808,6 +834,15 @@ h5, h6 {
 
 .btn-secondary-large:active {
   transform: scale(0.98);
+}
+
+/* Responsive: Scale down large secondary button to 38px height on smaller devices */
+@media (max-width: 1023px) {
+  .btn-secondary-large {
+    /* ~38px total height with 16px font */
+    padding: 10px 22px;
+    font-size: 16px;
+  }
 }
 
 /* Default secondary button */
@@ -823,6 +858,7 @@ h5, h6 {
   background-color: hsl(var(--card)); /* gray66 */
   border: none;
   border-radius: 16px;
+  cursor: pointer;
   transition: transform 0.2s ease;
   transform: scale(1);
 }
@@ -848,6 +884,7 @@ h5, h6 {
   background-color: hsl(var(--card)); /* gray66 */
   border: none;
   border-radius: 9999px;
+  cursor: pointer;
   transition: transform 0.2s ease;
   transform: scale(1);
 }
@@ -873,6 +910,7 @@ h5, h6 {
   background-color: hsl(var(--card)); /* gray66 */
   border: none;
   border-radius: 9999px;
+  cursor: pointer;
   transition: transform 0.2s ease;
   transform: scale(1);
 }
@@ -883,6 +921,29 @@ h5, h6 {
 
 .btn-secondary-xs:active {
   transform: scale(0.98);
+}
+
+/* ========================================
+   SECONDARY BUTTON COLOR VARIANTS
+   Light (white16) and Dark (black33) modes
+   ======================================== */
+
+/* Light secondary button variant (white8 background) */
+.btn-secondary-light,
+.btn-secondary-large.btn-secondary-light,
+.btn-secondary.btn-secondary-light,
+.btn-secondary-small.btn-secondary-light,
+.btn-secondary-xs.btn-secondary-light {
+  background-color: hsl(var(--white8));
+}
+
+/* Dark secondary button variant (black33 background) */
+.btn-secondary-dark,
+.btn-secondary-large.btn-secondary-dark,
+.btn-secondary.btn-secondary-dark,
+.btn-secondary-small.btn-secondary-dark,
+.btn-secondary-xs.btn-secondary-dark {
+  background-color: hsl(var(--black33));
 }
 
 /* Extra small primary button */
@@ -975,6 +1036,19 @@ h5, h6 {
   gap: 12px;
 }
 
+/* Responsive: Scale down large glass button to 38px height on smaller devices */
+@media (max-width: 1023px) {
+  .btn-glass-large {
+    /* ~38px total height with 16px font */
+    padding: 8px 18px;
+  }
+  
+  .btn-glass-large.btn-glass-with-chevron {
+    padding-right: 12px;
+    gap: 12px;
+  }
+}
+
 /* Default glass button */
 .btn-glass {
   display: inline-flex;
@@ -1043,7 +1117,7 @@ h5, h6 {
   color: hsl(var(--foreground));
   background-color: hsl(var(--white4));
   border: 1.4px solid hsl(var(--white16));
-  border-radius: 9999px;
+  border-radius: var(--radius-8);
   cursor: pointer;
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
@@ -1141,8 +1215,8 @@ h5, h6 {
 .btn-glass.btn-glass-blurple,
 .btn-glass-small.btn-glass-blurple,
 .btn-glass-xs.btn-glass-blurple {
-  border-color: hsl(241 99% 67% / 0.3);
-  box-shadow: 0 0 40px hsl(241 99% 67% / 0.2), 0 0 80px hsl(241 99% 67% / 0.1);
+  border-color: rgb(90 88 254 / 0.3);
+  box-shadow: 0 0 40px rgb(90 88 254 / 0.2), 0 0 80px rgb(90 88 254 / 0.1);
 }
 
 .btn-glass-blurple:hover,
@@ -1150,7 +1224,7 @@ h5, h6 {
 .btn-glass.btn-glass-blurple:hover,
 .btn-glass-small.btn-glass-blurple:hover,
 .btn-glass-xs.btn-glass-blurple:hover {
-  box-shadow: 0 0 60px hsl(241 99% 67% / 0.3), 0 0 120px hsl(241 99% 67% / 0.15);
+  box-shadow: 0 0 60px rgb(90 88 254 / 0.3), 0 0 120px rgb(90 88 254 / 0.15);
 }
 
 /* Green glass button */
@@ -1159,8 +1233,8 @@ h5, h6 {
 .btn-glass.btn-glass-green,
 .btn-glass-small.btn-glass-green,
 .btn-glass-xs.btn-glass-green {
-  border-color: hsl(142 76% 50% / 0.3);
-  box-shadow: 0 0 40px hsl(142 76% 50% / 0.2), 0 0 80px hsl(142 76% 50% / 0.1);
+  border-color: rgb(25 221 117 / 0.3);
+  box-shadow: 0 0 40px rgb(25 221 117 / 0.2), 0 0 80px rgb(25 221 117 / 0.1);
 }
 
 .btn-glass-green:hover,
@@ -1168,7 +1242,7 @@ h5, h6 {
 .btn-glass.btn-glass-green:hover,
 .btn-glass-small.btn-glass-green:hover,
 .btn-glass-xs.btn-glass-green:hover {
-  box-shadow: 0 0 60px hsl(142 76% 50% / 0.3), 0 0 120px hsl(142 76% 50% / 0.15);
+  box-shadow: 0 0 60px rgb(25 221 117 / 0.3), 0 0 120px rgb(25 221 117 / 0.15);
 }
 
 /* Rouge glass button */
@@ -1177,8 +1251,8 @@ h5, h6 {
 .btn-glass.btn-glass-rouge,
 .btn-glass-small.btn-glass-rouge,
 .btn-glass-xs.btn-glass-rouge {
-  border-color: hsl(344 100% 64% / 0.3);
-  box-shadow: 0 0 40px hsl(344 100% 64% / 0.2), 0 0 80px hsl(344 100% 64% / 0.1);
+  border-color: rgb(255 71 120 / 0.3);
+  box-shadow: 0 0 40px rgb(255 71 120 / 0.2), 0 0 80px rgb(255 71 120 / 0.1);
 }
 
 .btn-glass-rouge:hover,
@@ -1186,7 +1260,7 @@ h5, h6 {
 .btn-glass.btn-glass-rouge:hover,
 .btn-glass-small.btn-glass-rouge:hover,
 .btn-glass-xs.btn-glass-rouge:hover {
-  box-shadow: 0 0 60px hsl(344 100% 64% / 0.3), 0 0 120px hsl(344 100% 64% / 0.15);
+  box-shadow: 0 0 60px rgb(255 71 120 / 0.3), 0 0 120px rgb(255 71 120 / 0.15);
 }
 
 /* Gold glass button */
@@ -1195,8 +1269,8 @@ h5, h6 {
 .btn-glass.btn-glass-gold,
 .btn-glass-small.btn-glass-gold,
 .btn-glass-xs.btn-glass-gold {
-  border-color: hsl(43 100% 70% / 0.3);
-  box-shadow: 0 0 40px hsl(43 100% 70% / 0.2), 0 0 80px hsl(43 100% 70% / 0.1);
+  border-color: rgb(255 212 102 / 0.3);
+  box-shadow: 0 0 40px rgb(255 212 102 / 0.2), 0 0 80px rgb(255 212 102 / 0.1);
 }
 
 .btn-glass-gold:hover,
@@ -1204,7 +1278,47 @@ h5, h6 {
 .btn-glass.btn-glass-gold:hover,
 .btn-glass-small.btn-glass-gold:hover,
 .btn-glass-xs.btn-glass-gold:hover {
-  box-shadow: 0 0 60px hsl(43 100% 70% / 0.3), 0 0 120px hsl(43 100% 70% / 0.15);
+  box-shadow: 0 0 60px rgb(255 212 102 / 0.3), 0 0 120px rgb(255 212 102 / 0.15);
+}
+
+/* Green glass button - hover only variant (neutral default, green bg on hover) */
+.btn-glass-green-hover,
+.btn-glass-large.btn-glass-green-hover,
+.btn-glass.btn-glass-green-hover,
+.btn-glass-small.btn-glass-green-hover,
+.btn-glass-xs.btn-glass-green-hover {
+  background-color: rgb(0 0 0 / 0.33);
+  border-radius: 10px;
+  transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.btn-glass-green-hover:hover,
+.btn-glass-large.btn-glass-green-hover:hover,
+.btn-glass.btn-glass-green-hover:hover,
+.btn-glass-small.btn-glass-green-hover:hover,
+.btn-glass-xs.btn-glass-green-hover:hover {
+  background: radial-gradient(circle at top left, rgb(25 221 117 / 0.15) 0%, rgb(11 187 140 / 0.15) 100%);
+  border-color: rgb(25 221 117 / 0.4);
+  box-shadow: 0 0 50px rgb(25 221 117 / 0.25), 0 0 100px rgb(25 221 117 / 0.12);
+  color: hsl(var(--foreground));
+}
+
+.btn-glass-green-hover::before,
+.btn-glass-large.btn-glass-green-hover::before,
+.btn-glass.btn-glass-green-hover::before,
+.btn-glass-small.btn-glass-green-hover::before,
+.btn-glass-xs.btn-glass-green-hover::before {
+  background: radial-gradient(circle, rgb(25 221 117 / 0.2) 0%, transparent 70%);
+}
+
+/* Icon color transition for green-hover buttons */
+.btn-glass-green-hover .btn-icon-green {
+  transition: color 0.3s ease;
+  color: hsl(var(--white66));
+}
+
+.btn-glass-green-hover:hover .btn-icon-green {
+  color: #19DD75;
 }
 
 /* ========================================
@@ -1286,6 +1400,19 @@ h5, h6 {
 .split-button-large .split-button-right {
   padding: 12px 18px;
   color: hsl(var(--white66));
+}
+
+/* Responsive: Scale down large split button to 38px height on smaller devices */
+@media (max-width: 1023px) {
+  .split-button-large .split-button-left,
+  .split-button-large .split-button-right {
+    /* ~38px total height with 16px font */
+    padding: 8px 18px;
+  }
+  
+  .split-button-large .split-button-right {
+    padding: 8px 14px;
+  }
 }
 
 /* Default split button */
@@ -1858,25 +1985,25 @@ a, button {
 /* ReachKit gradient utilities */
 .reachkit-theme .text-gradient,
 .reachkit-gradient {
-  background: linear-gradient(135deg, hsl(43 100% 50%) 0%, hsl(20 100% 60%) 100%);
+  background: linear-gradient(135deg, #FFB700 0%, #FF7733 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .reachkit-theme .gradient-orb {
-  background: hsl(43 100% 50% / 0.2);
+  background: rgb(255 183 0 / 0.2);
 }
 
 .reachkit-theme .bg-gradient-subtle {
   background: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, hsl(43 100% 50% / 0.15), transparent),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(255 183 0 / 0.15), transparent),
     hsl(var(--background));
 }
 
 /* Section title with gradient */
 .section-title-gradient {
-  background: var(--gradient-white-purple);
+  background: var(--gradient-white-blurple);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

@@ -29,7 +29,7 @@
 - `.btn-primary-xs` - Extra small primary button (24px height, 12px font, pill shape)
 
 #### Secondary Buttons (Gray66 Background)
-- `.btn-secondary-large` - Large secondary button (~42px height, 18px font)
+- `.btn-secondary-large` - Large secondary button (~42px height, 16px font)
 - `.btn-secondary` - Default secondary button (~38px height, 16px font)
 - `.btn-secondary-small` - Small secondary button (32px height, 14px font, pill shape)
 - `.btn-secondary-xs` - Extra small secondary button (24px height, 12px font, pill shape)
@@ -140,6 +140,7 @@ These are acceptable exceptions, but new components should use standardized butt
 
 ### Implementation Notes
 
+- **All buttons MUST have `cursor: pointer`** - This is enforced in the CSS classes
 - All buttons include hover and active scale effects
 - Primary buttons have glow effects on hover
 - Border radius: 16px for large/default, 9999px (pill) for small/xs
@@ -397,6 +398,7 @@ The `Selector` component is a standardized tab/option selector used for filterin
 3. **Follow the design system** - Check this document before creating new components
 4. **Document exceptions** - If you need a specialized component, document it here
 5. **Consistency first** - Prefer reusing existing patterns over creating new ones
+6. **Cursor pointer on clickable elements** - **ALL clickable elements MUST have `cursor: pointer`**. This includes buttons, links, cards that navigate, toggles, and any other interactive elements. Users must always have clear visual feedback that an element is clickable.
 
 ---
 

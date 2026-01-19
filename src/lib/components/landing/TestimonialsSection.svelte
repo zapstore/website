@@ -7,15 +7,15 @@
   $: visibleTestimonials = testimonials;
 
   let testimonialsContainer;
-  let scrollPosition = 0;
-  const SCROLL_SPEED = 0.3;
+  const SCROLL_SPEED = 0.4;
   let animationFrameId;
   let isPaused = false;
-  let lastScrollLeft = 0;
-  let isScrolling = false;
+  let isAnimating = false;
+  let singleSetWidth = 0;
 
   // Organize testimonials into columns (3 per column)
-  $: columns = (() => {
+  // Triple the columns for seamless infinite scroll in both directions
+  $: baseColumns = (() => {
     if (!visibleTestimonials || visibleTestimonials.length === 0) {
       return [];
     }
@@ -24,8 +24,14 @@
     for (let i = 0; i < visibleTestimonials.length; i += itemsPerColumn) {
       cols.push(visibleTestimonials.slice(i, i + itemsPerColumn));
     }
-    return cols.length > 0 ? [...cols, ...cols] : [];
+    return cols;
   })();
+
+  // Triple the columns: [set1, set2, set3] - we scroll in set2, jump when entering set1 or set3
+  $: columns =
+    baseColumns.length > 0
+      ? [...baseColumns, ...baseColumns, ...baseColumns]
+      : [];
 
   function getDisplayName(testimonial) {
     if (testimonial.profile?.displayName)
@@ -79,68 +85,54 @@
     isPaused = false;
   }
 
-  function handleScroll() {
-    if (!testimonialsContainer || isPaused) return;
+  // Reposition scroll to middle set when entering first or last set
+  function repositionIfNeeded() {
+    if (!testimonialsContainer || singleSetWidth === 0) return;
 
     const scrollLeft = testimonialsContainer.scrollLeft;
-    const scrollWidth = testimonialsContainer.scrollWidth;
-    const halfWidth = scrollWidth / 2;
 
-    const isLargeScreen = window.innerWidth >= 768;
-    if (!isLargeScreen) return;
-
-    const scrollDelta = scrollLeft - lastScrollLeft;
-    lastScrollLeft = scrollLeft;
-
-    if (isScrolling) return;
-
-    if (scrollLeft >= halfWidth - 100) {
-      isScrolling = true;
-      testimonialsContainer.scrollLeft = scrollLeft - halfWidth;
-      setTimeout(() => {
-        isScrolling = false;
-      }, 50);
-    } else if (scrollLeft <= 100 && scrollDelta < 0) {
-      isScrolling = true;
-      testimonialsContainer.scrollLeft = halfWidth + scrollLeft;
-      setTimeout(() => {
-        isScrolling = false;
-      }, 50);
+    // If scrolled into the last third (set3), jump back to equivalent position in middle third (set2)
+    if (scrollLeft >= singleSetWidth * 2) {
+      testimonialsContainer.scrollLeft = scrollLeft - singleSetWidth;
+    }
+    // If scrolled into the first third (set1), jump forward to equivalent position in middle third (set2)
+    else if (scrollLeft < singleSetWidth) {
+      testimonialsContainer.scrollLeft = scrollLeft + singleSetWidth;
     }
   }
 
-  let isAnimating = false;
+  // Handle manual scroll - reposition when needed
+  function handleScroll() {
+    const isLargeScreen = window.innerWidth >= 768;
+    if (!isLargeScreen) return;
+    repositionIfNeeded();
+  }
 
   function animateScroll() {
-    if (
-      !testimonialsContainer ||
-      !visibleTestimonials ||
-      visibleTestimonials.length === 0 ||
-      testimonialsContainer.scrollWidth <= testimonialsContainer.clientWidth
-    ) {
-      isAnimating = false;
+    if (!isAnimating) return;
+
+    if (!testimonialsContainer || columns.length === 0) {
+      animationFrameId = requestAnimationFrame(animateScroll);
       return;
     }
 
     const isLargeScreen = window.innerWidth >= 768;
     if (!isLargeScreen) {
-      isAnimating = false;
+      animationFrameId = requestAnimationFrame(animateScroll);
       return;
     }
 
-    if (!isPaused && isAnimating && !isScrolling) {
-      scrollPosition += SCROLL_SPEED;
-      testimonialsContainer.scrollLeft = scrollPosition;
-
-      const maxScroll = testimonialsContainer.scrollWidth / 2;
-      if (scrollPosition >= maxScroll - 100) {
-        scrollPosition = scrollPosition - maxScroll;
-        testimonialsContainer.scrollLeft = scrollPosition;
-      }
+    if (!isPaused) {
+      testimonialsContainer.scrollLeft += SCROLL_SPEED;
+      repositionIfNeeded();
     }
 
-    if (isAnimating) {
-      animationFrameId = requestAnimationFrame(animateScroll);
+    animationFrameId = requestAnimationFrame(animateScroll);
+  }
+
+  function updateSetWidth() {
+    if (testimonialsContainer && columns.length > 0) {
+      singleSetWidth = testimonialsContainer.scrollWidth / 3;
     }
   }
 
@@ -149,31 +141,54 @@
   }
 
   onMount(() => {
-    if (visibleTestimonials && visibleTestimonials.length > 0) {
-      const checkAndStart = () => {
-        const isLargeScreen = window.innerWidth >= 768;
-        if (
-          testimonialsContainer &&
-          testimonialsContainer.scrollWidth >
-            testimonialsContainer.clientWidth &&
-          !isAnimating &&
-          isLargeScreen
-        ) {
-          lastScrollLeft = testimonialsContainer.scrollLeft;
-          isAnimating = true;
-          animateScroll();
-        } else if (!isAnimating && isLargeScreen) {
-          setTimeout(checkAndStart, 100);
-        }
-      };
-      setTimeout(checkAndStart, 500);
-    }
+    const init = () => {
+      const isLargeScreen = window.innerWidth >= 768;
+      if (
+        testimonialsContainer &&
+        testimonialsContainer.scrollWidth > testimonialsContainer.clientWidth &&
+        isLargeScreen
+      ) {
+        updateSetWidth();
+        // Start in the middle of the middle set (set2)
+        testimonialsContainer.scrollLeft = singleSetWidth;
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(animateScroll);
+      } else if (
+        isLargeScreen &&
+        visibleTestimonials &&
+        visibleTestimonials.length > 0
+      ) {
+        setTimeout(init, 100);
+      }
+    };
+
+    setTimeout(init, 200);
+
+    // Handle window resize
+    const handleResize = () => {
+      updateSetWidth();
+      const isLargeScreen = window.innerWidth >= 768;
+      if (
+        isLargeScreen &&
+        !isAnimating &&
+        visibleTestimonials &&
+        visibleTestimonials.length > 0
+      ) {
+        init();
+      } else if (!isLargeScreen) {
+        isAnimating = false;
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
       isAnimating = false;
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
       }
+      window.removeEventListener("resize", handleResize);
     };
   });
 </script>
@@ -212,9 +227,9 @@
         class="flex gap-6 px-4 md:px-32 py-2 overflow-x-auto scrollbar-hide relative z-10"
         style="scroll-behavior: auto;"
       >
-        {#each columns as column, columnIndex (columnIndex)}
+        {#each columns as column, columnIndex (`col-${columnIndex}`)}
           <div class="flex flex-col gap-6 flex-shrink-0" style="width: 320px;">
-            {#each column as testimonial (testimonial.id)}
+            {#each column as testimonial, testimonialIndex (`${columnIndex}-${testimonial.id}-${testimonialIndex}`)}
               <a
                 href={testimonial.nevent
                   ? `https://primal.net/e/${testimonial.nevent}`

@@ -1,9 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { assets } from "$app/paths";
-  import { ChevronRight } from "$lib/components/icons";
+  import { ChevronRight, Code2 } from "$lib/components/icons";
 
   let heroButton;
+  let devButton;
   let mouseX = 0;
   let mouseY = 0;
 
@@ -14,6 +15,15 @@
     mouseY = event.clientY - rect.top;
     heroButton.style.setProperty("--mouse-x", `${mouseX}px`);
     heroButton.style.setProperty("--mouse-y", `${mouseY}px`);
+  }
+
+  function handleDevButtonMouseMove(event) {
+    if (!devButton) return;
+    const rect = devButton.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    devButton.style.setProperty("--mouse-x", `${x}px`);
+    devButton.style.setProperty("--mouse-y", `${y}px`);
   }
 
   let scrollY = 0;
@@ -544,7 +554,7 @@
 
 <section
   bind:this={heroElement}
-  class="relative h-[70vh] flex items-center justify-center overflow-hidden"
+  class="relative h-[450px] sm:h-[500px] md:h-[540px] lg:h-[580px] flex items-center justify-center overflow-hidden"
   style="perspective: 2000px; perspective-origin: center center;"
 >
   <!-- Background gradient orbs -->
@@ -662,7 +672,7 @@
       </span>
       <br />
       <span
-        style="background: var(--gradient-blurple-white); -webkit-background-clip: text; background-clip: text; color: transparent;"
+        style="background: var(--gradient-blurple-light); -webkit-background-clip: text; background-clip: text; color: transparent;"
       >
         Released.
       </span>
@@ -685,6 +695,19 @@
       />
     </button>
   </div>
+
+  <!-- Developer button anchored to bottom -->
+  <button
+    type="button"
+    bind:this={devButton}
+    on:mousemove={handleDevButtonMouseMove}
+    class="dev-button-bottom btn-glass-small btn-glass-green-hover flex items-center justify-center gap-2 text-sm"
+  >
+    <span class="btn-icon-green flex items-center">
+      <Code2 variant="outline" size={14} color="currentColor" />
+    </span>
+    <span class="btn-text-white">Developer Site</span>
+  </button>
 </section>
 
 <style>
@@ -703,5 +726,60 @@
     50% {
       transform: translate(30px, -30px) scale(1.1);
     }
+  }
+
+  .dev-button-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    height: 40px !important;
+    width: 360px !important;
+    padding-bottom: 1px !important;
+    background-color: rgb(0 0 0 / 0.33) !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none !important;
+  }
+
+  .dev-button-bottom:hover {
+    transform: translateX(-50%) scale(1.025);
+  }
+
+  .dev-button-bottom:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  @media (max-width: 639px) {
+    .dev-button-bottom {
+      width: 100% !important;
+      left: 0;
+      transform: none;
+      border-radius: 0 !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+    }
+
+    .dev-button-bottom:hover {
+      transform: none;
+    }
+
+    .dev-button-bottom:active {
+      transform: none;
+    }
+  }
+
+  .btn-text-white {
+    transition: color 0.3s ease;
+    color: hsl(var(--white66));
+  }
+
+  .dev-button-bottom:hover .btn-text-white {
+    color: hsl(var(--foreground));
   }
 </style>

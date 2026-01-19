@@ -46,68 +46,73 @@
 <div
   class="forum-post-card group"
   on:click={onClick}
+  on:keydown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  }}
   role="button"
   tabindex="0"
 >
-  <!-- Top row: Profile pic, name, date/time -->
-  <div class="flex items-center gap-3 mb-3">
-    {#if author.picture}
-      <img
-        src={author.picture}
-        alt={getDisplayName()}
-        class="w-10 h-10 rounded-full object-cover flex-shrink-0"
-        loading="lazy"
-      />
-    {:else}
-      <div
-        class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0"
-      >
-        <span class="text-primary font-semibold text-sm">
-          {getDisplayName().charAt(0).toUpperCase()}
+  <div class="card-content">
+    <!-- Top row: Profile pic, name, date/time -->
+    <div class="flex items-center gap-3 mb-3">
+      {#if author.picture}
+        <img
+          src={author.picture}
+          alt={getDisplayName()}
+          class="w-10 h-10 rounded-full object-cover flex-shrink-0"
+          loading="lazy"
+        />
+      {:else}
+        <div
+          class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0"
+        >
+          <span class="text-primary font-semibold text-sm">
+            {getDisplayName().charAt(0).toUpperCase()}
+          </span>
+        </div>
+      {/if}
+
+      <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
+        <span
+          class="font-semibold truncate text-base"
+          style="color: hsl(var(--white66));"
+        >
+          {getDisplayName()}
+        </span>
+        <span
+          class="text-xs whitespace-nowrap flex-shrink-0"
+          style="color: hsl(var(--white33));"
+        >
+          {formatDateTime(timestamp)}
         </span>
       </div>
+    </div>
+
+    <!-- Title -->
+    {#if title}
+      <h3 class="text-lg font-semibold mb-2 line-clamp-2 text-foreground">
+        {title}
+      </h3>
     {/if}
 
-    <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
-      <span
-        class="font-semibold truncate text-base"
+    <!-- Content -->
+    {#if content}
+      <p
+        class="text-base leading-relaxed whitespace-pre-wrap mb-0 line-clamp-3"
         style="color: hsl(var(--white66));"
       >
-        {getDisplayName()}
-      </span>
-      <span
-        class="text-xs whitespace-nowrap flex-shrink-0"
-        style="color: hsl(var(--white33));"
-      >
-        {formatDateTime(timestamp)}
-      </span>
-    </div>
+        {content}
+      </p>
+    {/if}
   </div>
-
-  <!-- Title -->
-  {#if title}
-    <h3
-      class="text-lg font-semibold mb-2 line-clamp-2"
-      style="color: hsl(var(--white66));"
-    >
-      {title}
-    </h3>
-  {/if}
-
-  <!-- Content -->
-  {#if content}
-    <p
-      class="text-base leading-relaxed whitespace-pre-wrap mb-3 line-clamp-3"
-      style="color: hsl(var(--white66));"
-    >
-      {content}
-    </p>
-  {/if}
 
   <!-- Labels row -->
   {#if labels && labels.length > 0}
-    <div class="labels-container">
-      <div class="flex gap-2 overflow-x-auto scrollbar-hide pt-2">
+    <div class="labels-container scrollbar-hide">
+      <div class="flex gap-2">
         {#each labels as label}
           <div class="flex-shrink-0">
             <Label text={label} isSelected={false} isEmphasized={false} />
@@ -121,21 +126,39 @@
 <style>
   .forum-post-card {
     display: block;
-    padding: 1rem;
     background: hsl(var(--gray44));
     border: 1px solid hsl(var(--border) / 0.4);
     border-radius: 1.25rem;
     transition: transform 0.2s ease;
     cursor: pointer;
     height: fit-content;
-    overflow: visible;
+    overflow: hidden;
+  }
+
+  .card-content {
+    padding: 1rem;
   }
 
   .labels-container {
-    margin-left: -1rem;
-    margin-right: -1rem;
     padding-left: 1rem;
     padding-right: 1rem;
+    padding-bottom: 1rem;
+    overflow-x: auto;
+    /* Fade mask: opaque in center, transparent at edges */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent 100%
+    );
   }
 
   .forum-post-card:hover {
@@ -163,6 +186,7 @@
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -170,6 +194,7 @@
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

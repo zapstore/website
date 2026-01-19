@@ -194,7 +194,7 @@
               class="flex items-stretch rounded-xl bg-white/5 border border-border/30 overflow-hidden"
             >
               <!-- QR Code Left -->
-              <div class="flex flex-col items-center gap-5 pt-6 pb-4 px-6">
+              <div class="flex flex-col items-center gap-5 pt-5 pb-4 px-5">
                 <img
                   src={`${assets}/images/qr.png`}
                   alt={`QR code to download Zapstore v${ANDROID_APK_VERSION} APK`}
@@ -237,14 +237,24 @@
               <div class="flex-1 flex flex-col">
                 <!-- Android 10+ Info -->
                 <div
-                  class="flex-1 flex items-center gap-1.5 text-muted-foreground pl-6 pr-4 py-2"
+                  class="flex-1 flex flex-col justify-center gap-1 text-muted-foreground pl-6 pr-4 py-2"
                 >
-                  <span>
-                    <span class="text-sm">Android 10+</span><br />
-                    <span class="text-sm" style="color: hsl(var(--white33));"
-                      ><strong>arm64-v8a</strong> only</span
+                  <span class="flex items-center gap-2">
+                    <svg
+                      class="w-5 h-5 flex-shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
+                      <path
+                        d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.463 11.463 0 00-8.94 0L5.65 5.67c-.19-.29-.58-.38-.87-.2-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 003 18h18a10.78 10.78 0 00-3.4-8.52zM8.5 14c-.83 0-1.5-.67-1.5-1.5S7.67 11 8.5 11s1.5.67 1.5 1.5S9.33 14 8.5 14zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+                      />
+                    </svg>
+                    <span class="text-sm">Android 10+</span>
                   </span>
+                  <span class="text-sm" style="color: hsl(var(--white33));"
+                    ><strong>arm64-v8a</strong> only</span
+                  >
                 </div>
 
                 <!-- Horizontal Divider -->

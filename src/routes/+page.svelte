@@ -8,6 +8,8 @@
   import CommunitySection from "$lib/components/landing/CommunitySection.svelte";
   import DeveloperSection from "$lib/components/landing/DeveloperSection.svelte";
   import DifferenceSection from "$lib/components/landing/DifferenceSection.svelte";
+  import RoadmapSection from "$lib/components/landing/RoadmapSection.svelte";
+  import TeamSection from "$lib/components/landing/TeamSection.svelte";
 
   export let data;
 
@@ -42,3 +44,9 @@
 
 <!-- Community Section -->
 <CommunitySection />
+
+<!-- Roadmap Section -->
+<RoadmapSection />
+
+<!-- Team Section -->
+<TeamSection />

@@ -33,14 +33,23 @@
           Lorem ipsum dolor sit amet and then some more of this weird and
           unreadable consectetur adipiscing elit.
         </p>
-        <button
-          type="button"
-          on:click={showDownloadModal}
-          class="btn-primary-large w-full flex items-center justify-center gap-3"
-        >
-          <Download variant="fill" color="hsl(var(--white66))" size={20} />
-          Download
-        </button>
+        <div class="flex flex-row gap-3">
+          <button
+            type="button"
+            class="btn-secondary-large btn-secondary-light"
+            style="color: hsl(var(--white66));"
+          >
+            Learn More
+          </button>
+          <button
+            type="button"
+            on:click={showDownloadModal}
+            class="btn-primary-large flex-1 flex items-center justify-center gap-3"
+          >
+            <Download variant="fill" color="hsl(var(--white66))" size={20} />
+            Download
+          </button>
+        </div>
       </div>
 
       <!-- Right: App Image -->

@@ -112,7 +112,7 @@
       <br class="mb-6" />
       <span
         class="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl"
-        style="background: radial-gradient(circle at top left, hsl(142, 100%, 90%) 0%, hsl(142, 76%, 50%) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;"
+        style="background: radial-gradient(circle at top left, #19DD75 0%, #0BBB8C 100%); -webkit-background-clip: text; background-clip: text; color: transparent;"
       >
         Without Permission
       </span>
@@ -127,7 +127,7 @@
       on:mousemove={handleButtonMouseMove}
       class="btn-glass-large btn-glass-green flex items-center gap-3 mx-auto"
     >
-      <Code2 variant="outline" color="hsl(142 76% 50%)" size={16} />
+      <Code2 variant="outline" color="#19DD75" size={16} />
       Developer Site
     </button>
   </div>
@@ -148,9 +148,9 @@
     opacity: 0.3;
     background-image: 
       /* Horizontal lines */
-      linear-gradient(hsl(142 76% 50% / 0.4) 1px, transparent 1px),
+      linear-gradient(rgb(25 221 117 / 0.4) 1px, transparent 1px),
       /* Vertical lines */
-        linear-gradient(90deg, hsl(142 76% 50% / 0.4) 1px, transparent 1px);
+        linear-gradient(90deg, rgb(25 221 117 / 0.4) 1px, transparent 1px);
     background-size: 100px 100px;
     background-position: center center;
     transform-style: preserve-3d;
