@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import { User } from 'lucide-svelte';
 	import { fetchProfile } from '$lib/nostr.js';
 
@@ -11,17 +10,28 @@
 
 	let profile = null;
 	let loading = true;
+	let lastFetchedPubkey = null;
 
-	onMount(async () => {
-		if (pubkey) {
-			try {
-				profile = await fetchProfile(pubkey);
-			} catch (err) {
+	// Reactive statement to fetch profile when pubkey changes
+	$: if (pubkey && pubkey !== lastFetchedPubkey) {
+		loading = true;
+		profile = null;
+		lastFetchedPubkey = pubkey;
+		fetchProfile(pubkey)
+			.then(p => {
+				// Only update if this is still the current pubkey
+				if (pubkey === lastFetchedPubkey) {
+					profile = p;
+					loading = false;
+				}
+			})
+			.catch(err => {
 				console.error('Error fetching profile:', err);
-			}
-			loading = false;
-		}
-	});
+				if (pubkey === lastFetchedPubkey) {
+					loading = false;
+				}
+			});
+	}
 
 	// Truncate npub for fallback display
 	$: truncatedNpub = npub ? `${npub.slice(0, 12)}...${npub.slice(-6)}` : '';

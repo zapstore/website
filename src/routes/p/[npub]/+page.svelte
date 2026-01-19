@@ -28,9 +28,15 @@
 	let appVersions = new Map();
 
 	// Fetch version for an app from FileMetadata
-	async function loadVersionForApp(app) {
-		if (!app?.id || appVersions.has(app.id)) return;
-		const version = await fetchAppVersion(app);
+	// forceRefresh: if true, ignores both in-memory and IndexedDB cache
+	async function loadVersionForApp(app, forceRefresh = false) {
+		if (!app?.id) return;
+		
+		// Skip if already cached and not forcing refresh
+		if (!forceRefresh && appVersions.has(app.id)) return;
+		
+		// Pass skipCache to bypass IndexedDB when forcing refresh
+		const version = await fetchAppVersion(app, { skipCache: forceRefresh });
 		if (version) {
 			appVersions.set(app.id, version);
 			appVersions = appVersions; // Trigger reactivity
@@ -74,8 +80,9 @@
 				developer = developerProfile;
 				apps = developerApps;
 
-				// Fetch versions for all apps
-				apps.forEach((app) => loadVersionForApp(app));
+				// Clear version cache and fetch fresh versions for all apps
+				appVersions.clear();
+				apps.forEach((app) => loadVersionForApp(app, true));
 			}
 
 			loading = false;
@@ -306,4 +313,11 @@
 		word-break: break-word;
 	}
 </style>
+
+
+
+
+
+
+
 

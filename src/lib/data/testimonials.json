@@ -1,5 +1,23 @@
 [
   {
+    "id": "4beed4b6fd63706344320954ad762d547cd2903ec142a70d3bf1183caef08d27",
+    "pubkey": "b33bf9e97b78f35694a02e6bbef8e77059373e42b0a85a63f25a50ebfdadf50d",
+    "content": "I signed my first @Zapstore release. Admire well-thought and lean concept + perfect execution by zapstore team!",
+    "created_at": 1766529204
+  },
+  {
+    "id": "d408fdfba4cbb116af17efcb4fd4dfac8bd8f712cf5cdd2a42b5c41bf2451ea7",
+    "pubkey": "b7ed68b062de6b4a12e51fd5285c1e1e0ed0e5128cda93ab11b4150b55ed32fc",
+    "content": "I'm so bullish on @Zapstore it hurts.",
+    "created_at": 1765798830
+  },
+  {
+    "id": "9b793e8b99b05e01134623c7ae534a9bf48f3d13b7f6d7221c39f8994ff76ce8",
+    "pubkey": "1ec454734dcbf6fe54901ce25c0c7c6bca5edd89443416761fadc321d38df139",
+    "content": "@Zapstore is fantastic, and to me the most important app in the android ecosystem. \n\nZapstore combined with @GrapheneOS makes me feel like I own my phone again.",
+    "created_at": 1765814264
+  },
+  {
     "id": "57e3be4f64c8d0bbf0d4da1f2cccf943614daa9f9ed85a2674d1e5f50acb1b55",
     "pubkey": "81c8228c58a71b0e8ef74728ff6a9125616cad000a52a5455a17ba3819a7f373",
     "content": "Yeah, grapheneOS, zapstore rocks!\n#grapheneos #zapstore",
@@ -42,12 +60,6 @@
     "created_at": 1762205848
   },
   {
-    "id": "5c882b4a2cbdad238747dfd9a9fb16037d9dfb5f971e0b1aea3ba5391ffe283e",
-    "pubkey": "17798ce73873b40524a167485674d698eb995605d41651987c4fa02ec0e8bd7b",
-    "content": "I published NeoComment on Zapstore. It was as easy as breathing. Thanks guys.",
-    "created_at": 1763917276
-  },
-  {
     "id": "ade3236c49d9648a0cc2ee06d61b27fa92dbf6d05afbc8f2481c0dabc4b31d0b",
     "pubkey": "04f4e607604cc3f89a1cf148c4e10190abd13539a256a53e6096dc0429514b3a",
     "content": "NosCall is now live on Zapstore! You can publish without any approval — true freedom tech ⚡️",
@@ -82,12 +94,6 @@
     "pubkey": "06830f6cb5925bd82cca59bda848f0056666dff046c5382963a997a234da40c5",
     "content": "You can zap ⚡️ the devs releases in Zapstore. hint hint 🫆",
     "created_at": 1764821856
-  },
-  {
-    "id": "07cc0f41dc04e56be1e95560597b7951b930886bd59472b8e7aaae4728223947",
-    "pubkey": "aa1f96f685d0ac3e28a52feb87a20399a91afb3ac3137afeb7698dfcc99bc454",
-    "content": "Shout out to the devs for signing their apps on Zapstore.",
-    "created_at": 1762166385
   },
   {
     "id": "601f918b745fefc86f12a79b3c27918189ceef4e7865673ca36f0aebff290590",

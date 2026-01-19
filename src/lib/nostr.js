@@ -4,7 +4,7 @@ import { bech32 } from '@scure/base';
 import { cacheEvent, getCachedEvent } from './event-cache.js';
 // Note: marked removed, using simple fallback for renderMarkdown
 
-const RELAY_URL = 'wss://relay.zapstore.dev';
+export const RELAY_URL = 'wss://relay.zapstore.dev';
 const PROFILE_RELAY_URL = 'wss://relay.vertexlab.io';
 const SOCIAL_RELAYS = [
 	'wss://relay.damus.io',
@@ -359,9 +359,10 @@ export function renderMarkdown(markdown) {
 
         function flushParagraph() {
             if (paraBuffer.length > 0) {
-                const content = paraBuffer.join(' ').trim();
+                const contentWithBreaks = paraBuffer.map(line => line.trim()).join('<br>');
+                const content = applyInlineMarkdown(contentWithBreaks).trim();
                 if (content.length > 0) {
-                    htmlParts.push(`<p>${applyInlineMarkdown(content)}</p>`);
+                    htmlParts.push(`<p>${content}</p>`);
                 }
                 paraBuffer = [];
             }
@@ -1289,14 +1290,16 @@ export async function fetchFileMetadata(eventIds) {
 /**
  * Fetches the version for an app from its FileMetadata
  * @param {Object} app - The app object
+ * @param {Object} options - Options
+ * @param {boolean} options.skipCache - Skip IndexedDB cache and fetch fresh data
  * @returns {Promise<string|null>} The version string or null
  */
-export async function fetchAppVersion(app) {
+export async function fetchAppVersion(app, { skipCache = false } = {}) {
     if (!app || !app.pubkey || !app.dTag) return null;
     
     try {
         // Get the latest release for this app
-        const release = await fetchLatestReleaseForApp(app);
+        const release = await fetchLatestReleaseForApp(app, { skipCache });
         if (!release || !release.eTags || release.eTags.length === 0) {
             return null;
         }

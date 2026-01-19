@@ -15,17 +15,16 @@
 	// Receive server-rendered data
 	export let data;
 	
-	// Check if we have cached state from previous visit
-	const cachedState = getDiscoverPageState();
-	const hasCachedState = cachedState.apps.length > 0 && !data.initialQuery;
-	
-	let apps = hasCachedState ? cachedState.apps : data.apps;
+	// Always start with server data to avoid hydration mismatch
+	// Cached state restoration happens in onMount (client-side only)
+	let apps = data.apps;
 	let loading = data.loading;
 	let error = data.error || null;
 	let loadingMore = false;
-	let hasMore = hasCachedState ? cachedState.hasMore : data.hasMore;
-	let query = data.initialQuery || cachedState.query || "";
-	let debouncedQuery = data.initialQuery || cachedState.query || "";
+	let hasMore = data.hasMore;
+	let query = data.initialQuery || "";
+	let debouncedQuery = data.initialQuery || "";
+	let hydrated = false;
 	let canSearch = false;
 	$: canSearch = query.trim().length > 0;
 	const PAGE_SIZE = 12;
@@ -34,9 +33,15 @@
 	let appVersions = new Map();
 	
 	// Fetch version for an app from FileMetadata
-	async function loadVersionForApp(app) {
-		if (!app?.id || appVersions.has(app.id)) return;
-		const version = await fetchAppVersion(app);
+	// forceRefresh: if true, ignores both in-memory and IndexedDB cache
+	async function loadVersionForApp(app, forceRefresh = false) {
+		if (!app?.id) return;
+		
+		// Skip if already cached and not forcing refresh
+		if (!forceRefresh && appVersions.has(app.id)) return;
+		
+		// Pass skipCache to bypass IndexedDB when forcing refresh
+		const version = await fetchAppVersion(app, { skipCache: forceRefresh });
 		if (version) {
 			appVersions.set(app.id, version);
 			appVersions = appVersions; // Trigger reactivity
@@ -49,8 +54,10 @@
 			cacheApp(app);
 			loadVersionForApp(app);
 		});
-		// Save state for when user navigates back
-		setDiscoverPageState({ apps, hasMore, query: debouncedQuery, expanded: apps.length > PAGE_SIZE });
+		// Save state for when user navigates back (only after hydration to avoid SSR issues)
+		if (hydrated) {
+			setDiscoverPageState({ apps, hasMore, query: debouncedQuery, expanded: apps.length > PAGE_SIZE });
+		}
 	}
 
 	async function loadApps(reset = true) {
@@ -108,7 +115,27 @@
 		}
 	}
 
-	// No onMount needed - initial data comes from server!
+	// Restore cached state after hydration (client-side navigation back)
+	onMount(() => {
+		hydrated = true;
+		// Only restore cached state if no search query and we have cached data
+		if (!data.initialQuery) {
+			const cachedState = getDiscoverPageState();
+			if (cachedState.apps.length > 0) {
+				apps = cachedState.apps;
+				hasMore = cachedState.hasMore;
+				query = cachedState.query || "";
+				debouncedQuery = cachedState.query || "";
+			}
+		}
+		
+		// Refresh versions on page load to get latest data
+		// This clears the in-memory cache and fetches fresh data from the network
+		if (apps.length > 0) {
+			appVersions.clear();
+			apps.forEach(app => loadVersionForApp(app, true));
+		}
+	});
 
 	function onInputQuery(e) {
 		query = e.target.value;
@@ -242,7 +269,7 @@
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
 			>
-				{#each apps as app}
+				{#each apps as app (app.id)}
 					<div
 						class="group relative overflow-hidden rounded-lg border border-border bg-card hover:border-primary/50 transition-all duration-200 hover:shadow-lg hover:shadow-primary/5"
 					>

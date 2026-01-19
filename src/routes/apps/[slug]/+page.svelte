@@ -174,11 +174,11 @@
 			}
 		}
 
-		// Now fetch fresh data (will use cache if available, or fetch from relay)
+		// Now fetch fresh data (skip cache to ensure latest version is displayed)
 		if (app) {
 			try {
-				// Fetch release (uses IndexedDB cache internally)
-				const freshRelease = await fetchLatestReleaseForApp(app);
+				// Fetch release - skip cache to get latest version info
+				const freshRelease = await fetchLatestReleaseForApp(app, { skipCache: true });
 				if (freshRelease) {
 					latestRelease = freshRelease;
 				}
@@ -256,7 +256,7 @@
 		// Android Intent URL format
 		// If app is installed: opens the app
 		// If not installed: uses browser_fallback_url to redirect to download
-		return `intent://zapstore.dev/apps/${slug}#Intent;scheme=https;package=dev.zapstore.app;S.browser_fallback_url=https%3A%2F%2Fzapstore.dev%2Fdownload;end`;
+		return `intent://zapstore.dev/apps/${slug}#Intent;scheme=https;package=dev.zapstore.app;S.browser_fallback_url=https%3A%2F%2Fzapstore.dev;end`;
 	}
 
 	// Highlight JSON using Prism
@@ -374,77 +374,73 @@
 					<div class="mt-1">
 						<ProfileInfo pubkey={app.pubkey} npub={app.npub} size="xs" />
 					</div>
-				</div>
-			</div>
+		</div>
+	</div>
 
-			<!-- Zaps Section -->
-			<div class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-				<div class="flex flex-col sm:flex-row sm:items-center gap-4">
-					<!-- Zap Stats -->
-					<div class="flex items-center gap-3">
-						<div class="p-2 bg-amber-500/20 rounded-lg">
-							<Zap class="h-6 w-6 text-amber-500" />
-						</div>
-						{#if !loadingZaps && zapsData.count > 0}
-							<div>
-								<div class="text-lg font-bold text-amber-500">
-									{formatSats(zapsData.totalSats)}
-								</div>
-								<div class="text-xs text-muted-foreground">
-									{zapsData.count} zap{zapsData.count !== 1 ? "s" : ""}
-								</div>
-							</div>
-						{:else if loadingZaps}
-							<div class="text-sm text-muted-foreground">Loading zaps...</div>
-						{:else}
-							<div class="text-sm text-muted-foreground">No zaps yet</div>
-						{/if}
+	<!-- Zaps Section (only shown when there are zaps) -->
+	{#if !loadingZaps && zapsData.count > 0}
+		<div class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+			<div class="flex flex-col sm:flex-row sm:items-center gap-4">
+				<!-- Zap Stats -->
+				<div class="flex items-center gap-3">
+					<div class="p-2 bg-amber-500/20 rounded-lg">
+						<Zap class="h-6 w-6 text-amber-500" />
 					</div>
+					<div>
+						<div class="text-lg font-bold text-amber-500">
+							{formatSats(zapsData.totalSats)}
+						</div>
+						<div class="text-xs text-muted-foreground">
+							{zapsData.count} zap{zapsData.count !== 1 ? "s" : ""}
+						</div>
+					</div>
+				</div>
 
-					<!-- Zapper Avatars (deduplicated) -->
-					{#if !loadingZaps && uniqueZappers.length > 0}
-						<div class="flex items-center gap-2 flex-1">
-							<div class="text-xs text-muted-foreground">from</div>
-							<div class="flex -space-x-2 overflow-hidden">
-								{#each uniqueZappers.slice(0, 8) as zap}
-									{@const profile = zapperProfiles.get(zap.senderPubkey)}
-									{#if profile?.picture}
-										<img
-											src={profile.picture}
-											alt={profile.displayName || profile.name || "Zapper"}
-											title={profile.displayName ||
-												profile.name ||
-												"Anonymous"}
-											class="w-7 h-7 rounded-full border-2 border-background object-cover bg-muted"
-										/>
-									{:else if zap.senderPubkey}
-										<div
-											class="w-7 h-7 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center"
-											title="Anonymous"
-										>
-											<User class="h-3 w-3 text-primary" />
-										</div>
-									{/if}
-								{/each}
-								{#if uniqueZappers.length > 8}
+				<!-- Zapper Avatars (deduplicated) -->
+				{#if uniqueZappers.length > 0}
+					<div class="flex items-center gap-2 flex-1">
+						<div class="text-xs text-muted-foreground">from</div>
+						<div class="flex -space-x-2 overflow-hidden">
+							{#each uniqueZappers.slice(0, 8) as zap}
+								{@const profile = zapperProfiles.get(zap.senderPubkey)}
+								{#if profile?.picture}
+									<img
+										src={profile.picture}
+										alt={profile.displayName || profile.name || "Zapper"}
+										title={profile.displayName ||
+											profile.name ||
+											"Anonymous"}
+										class="w-7 h-7 rounded-full border-2 border-background object-cover bg-muted"
+									/>
+								{:else if zap.senderPubkey}
 									<div
-										class="w-7 h-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
+										class="w-7 h-7 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center"
+										title="Anonymous"
 									>
-										+{uniqueZappers.length - 8}
+										<User class="h-3 w-3 text-primary" />
 									</div>
 								{/if}
-							</div>
+							{/each}
+							{#if uniqueZappers.length > 8}
+								<div
+									class="w-7 h-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
+								>
+									+{uniqueZappers.length - 8}
+								</div>
+							{/if}
 						</div>
-					{/if}
+					</div>
+				{/if}
 
-					<!-- Zap Button (hidden for Zapstore-signed apps unless they have existing zaps) -->
-					{#if showZapButton}
-						<div class="sm:ml-auto">
-							<ZapButton {app} size="md" on:zapReceived={handleZapReceived} />
-						</div>
-					{/if}
-				</div>
+				<!-- Zap Button -->
+				{#if showZapButton}
+					<div class="sm:ml-auto">
+						<ZapButton {app} size="md" on:zapReceived={handleZapReceived} />
+					</div>
+				{/if}
 			</div>
+		</div>
+	{/if}
 
 			<!-- Description -->
 			<div
